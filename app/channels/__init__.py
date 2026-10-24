@@ -1,0 +1,1 @@
+# Channel adapter: web chat

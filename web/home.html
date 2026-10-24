@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blinks Bright — คลินิกผิวพรรณและความงาม</title>
+  <meta name="description" content="คลินิกดูแลผิวพรรณและความงาม ดูแลโดยแพทย์ จองคิวออนไลน์ได้ตลอด 24 ชั่วโมง" />
+  <link rel="icon" type="image/png" href="/assets/images/logo_b.png?v=5" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&family=Kanit:ital,wght@0,500;0,600;1,500;1,600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <!-- headings use Kanit; body text keeps the tokens.css fonts (Inter + Sarabun) -->
+  <style>:root { --font-display: 'Kanit', 'Sarabun', sans-serif; --font-num: 'Fraunces', 'Kanit', 'Sarabun', serif; }</style>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font); color: var(--ink); background: var(--canvas);
+      -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, h4, p, ul { margin: 0; }
+    ul { padding: 0; list-style: none; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    .wrap { width: min(1160px, 100% - 40px); margin-inline: auto; }
+    .display { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.02em;
+      line-height: 1.12; }
+
+    /* ---------- the marble field: three coloured washes over glass ---------- */
+    .marble {
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(1200px 700px at 88% -12%, rgba(var(--clay-rgb), 0.22), transparent 60%),
+        radial-gradient(1000px 640px at -8% 8%, rgba(var(--primary-rgb), 0.18), transparent 58%),
+        radial-gradient(900px 620px at 40% 104%, rgba(var(--violet-rgb), 0.14), transparent 62%),
+        radial-gradient(640px 480px at 102% 72%, rgba(var(--rose-rgb), 0.10), transparent 64%),
+        linear-gradient(180deg, var(--canvas), var(--canvas-2));
+    }
+
+    /* ---------- nav ---------- */
+    .nav { position: sticky; top: 0; z-index: 50;
+      background: rgba(247, 249, 254, 0.72);
+      backdrop-filter: saturate(170%) blur(16px); -webkit-backdrop-filter: saturate(170%) blur(16px);
+      border-bottom: 1px solid var(--border); }
+    .nav-in { display: flex; align-items: center; gap: 22px; height: 68px; }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px;
+      letter-spacing: -0.01em; }
+    .logo .mark { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center;
+      background: linear-gradient(143deg, #6A74DC, var(--primary)); color: #fff; overflow: hidden;
+      box-shadow: 0 6px 16px -5px rgba(var(--primary-rgb), .55); font-weight: 700; }
+    .logo .mark img { width: 100%; height: 100%; object-fit: contain; }
+    .logo .mark:has(img) { background: none; box-shadow: none; border-radius: 0; }
+    .logo .wordmark { height: 42px; width: auto; display: block; }
+    @media (max-width: 560px) { .logo .wordmark { height: 32px; } }
+    .logo .foot-wordmark { height: 40px; }
+    .nav-links { display: flex; gap: 4px; margin-left: auto; }
+    .nav-links a { padding: 8px 13px; border-radius: var(--r-pill); font-size: var(--fs-md);
+      font-weight: 500; color: var(--ink-2); transition: background 150ms ease, color 150ms ease; }
+    .nav-links a:hover { background: var(--primary-soft); color: var(--primary); }
+    .nav-cta { display: flex; gap: 9px; align-items: center; }
+    .lang-toggle { display: inline-flex; align-items: center; padding: 2px; flex-shrink: 0;
+      border-radius: var(--r-pill); background: transparent; border: 1px solid var(--border); }
+    .lang-toggle button { appearance: none; border: none; background: none; cursor: pointer;
+      font: inherit; font-size: 11.5px; font-weight: 500; color: var(--muted);
+      padding: 5px 9px; border-radius: var(--r-pill); line-height: 1;
+      transition: background 150ms ease, color 150ms ease; }
+    .lang-toggle button.active { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+    .lang-toggle button:not(.active):hover { color: var(--primary); }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 20px; border-radius: var(--r-pill); font: inherit; font-size: var(--fs-md);
+      font-weight: 600; cursor: pointer; border: 1px solid transparent; white-space: nowrap;
+      transition: transform 120ms ease, box-shadow 180ms ease, background 180ms ease; }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: linear-gradient(160deg, #6A74DC, var(--primary)); color: #fff;
+      box-shadow: 0 8px 20px -7px rgba(var(--primary-rgb), .62); }
+    .btn-primary:hover { box-shadow: 0 12px 26px -8px rgba(var(--primary-rgb), .72); }
+    .btn-ghost { background: var(--glass); color: var(--ink); border-color: var(--border-2);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-lg { padding: 14px 26px; font-size: var(--fs-lg); }
+
+    /* ---------- hero ---------- */
+    .hero { padding: 76px 0 64px; display: grid; grid-template-columns: 1.05fr .95fr;
+      gap: 54px; align-items: center; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px;
+      border-radius: var(--r-pill); background: var(--glass); border: 1px solid var(--glass-line);
+      font-size: var(--fs-sm); font-weight: 600; color: var(--clay); letter-spacing: .06em;
+      text-transform: uppercase; box-shadow: var(--sh-xs); }
+    .hero h1 { font-size: clamp(38px, 5.2vw, 62px); margin: 18px 0 16px; }
+    .hero h1 em { font-style: italic; color: var(--primary); }
+    .hero .lede { font-size: var(--fs-lg); color: var(--ink-2); line-height: 1.68; max-width: 48ch; }
+    .hero h1.display { font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; }
+    .hero-cta { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+    .hero-stats { display: flex; gap: 44px; margin-top: 40px; padding-top: 30px;
+      border-top: 1px solid var(--border-2); }
+    .hero-stats b { display: block; font-family: var(--font-num); font-size: clamp(34px, 3.6vw, 46px);
+      font-weight: 600; color: var(--primary); line-height: 1.05; letter-spacing: -0.01em;
+      white-space: nowrap; }
+    .hero-stats span { display: block; margin-top: 6px; font-size: var(--fs-md); font-weight: 500;
+      color: var(--ink-2); }
+
+    /* the hero figure: a transparent PNG floating inside two faint rings */
+    .orb-wrap { position: relative; display: grid; place-items: center; min-height: 430px; }
+    .orb { width: min(560px, 92vw); height: auto; position: relative; z-index: 2;
+      filter: drop-shadow(0 40px 60px rgba(var(--primary-rgb), .22)); }
+    .orb-ring { position: absolute; width: min(540px, 96vw); aspect-ratio: 1; border-radius: 50%;
+      border: 1px solid rgba(201, 160, 82, .45); }
+    .orb-ring.two { width: min(600px, 106vw); border-color: rgba(201, 160, 82, .22); }
+    /* the backdrop: a pearl-to-amethyst moon with a gold double rim and a slow sheen,
+       so the figure sits on something rather than floating on the bare page */
+    .halo { position: absolute; width: min(500px, 88vw); aspect-ratio: 1; border-radius: 50%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(255,255,255,.95) 0, rgba(255,255,255,0) 46%),
+        radial-gradient(circle at 22% 78%, rgba(var(--violet-rgb), .55), transparent 55%),
+        radial-gradient(circle at 80% 70%, rgba(var(--rose-rgb), .35), transparent 50%),
+        linear-gradient(180deg, #F4F1FB 0%, #D9D1F2 48%, rgba(var(--primary-rgb), .78) 100%);
+      box-shadow: inset 0 -40px 80px rgba(var(--primary-rgb), .30),
+                  inset 0 20px 50px rgba(255, 255, 255, .6),
+                  inset 0 0 0 1px rgba(122, 82, 16, .45); }
+    /* polished gold rim: a disc of brushed-metal bands sitting just behind the halo,
+       so only a ~6px ring of it shows. The bands alternate bright/deep gold the way
+       a curved metal edge catches light; ::after sweeps a glint round it. */
+    .halo-rim { position: absolute; width: calc(min(500px, 88vw) + 12px); aspect-ratio: 1;
+      border-radius: 50%; overflow: hidden; opacity: .6;
+      background: conic-gradient(from 210deg,
+        #8C6114, #E9C46A 8%, #FFF4C8 13%, #D4A23C 20%, #8A5E12 30%,
+        #C9973A 40%, #FFEDB0 47%, #E2B552 54%, #9A6A18 64%,
+        #D9AC4C 74%, #FFF6D2 80%, #C8902C 88%, #8C6114);
+      box-shadow: 0 0 0 1px rgba(110, 72, 10, .55),
+                  0 0 18px rgba(255, 200, 90, .45),
+                  0 50px 120px -30px rgba(var(--primary-rgb), .55),
+                  inset 0 2px 2px rgba(255, 252, 230, .9),
+                  inset 0 -2px 3px rgba(90, 58, 6, .6); }
+    .halo-rim::after { content: ''; position: absolute; inset: 0;
+      background: conic-gradient(from 0deg, transparent 0 40%, rgba(255, 255, 255, .95) 46%,
+        transparent 52% 100%);
+      mix-blend-mode: overlay; animation: sheen 6s linear infinite; }
+    .halo::after { content: ''; position: absolute; inset: -20%;
+      background: conic-gradient(from 0deg, transparent 0 20%, rgba(255, 236, 190, .45) 26%,
+        transparent 34% 70%, rgba(255, 255, 255, .5) 76%, transparent 84%);
+      mix-blend-mode: soft-light; animation: sheen 18s linear infinite; }
+    @keyframes sheen { to { transform: rotate(360deg); } }
+    main { overflow-x: clip; }   /* the rings are wider than a phone; never widen the page */
+    /* A Saturn ring of gold sparkles: a tilted ellipse the stars travel round, passing
+       IN FRONT of the figure on the near side and BEHIND it on the far side. saturn()
+       (bottom of this file) moves each star and flips its z-index as it crosses; .sparkles itself must stay
+       free of transform/opacity/z-index, or it becomes a stacking context and its
+       children could no longer be layered on either side of the figure (z-index 2). */
+    .sparkles { position: absolute; width: min(620px, 112vw); aspect-ratio: 1; pointer-events: none; }
+    .sparkles i { position: absolute; left: 50%; top: 50%; width: var(--s); aspect-ratio: 1;
+      margin: calc(var(--s) / -2); will-change: transform; }
+    /* the glow sits on <b>, not on the star shape: a filter is applied BEFORE clip-path,
+       so on the clipped element it would be cut off. The amber rim is what keeps a
+       gold star readable against the pale page as well as against the marble. */
+    .sparkles b { position: absolute; inset: 0;
+      filter: drop-shadow(0 0 1px #8A5600) drop-shadow(0 0 6px rgba(255, 190, 40, 1))
+              drop-shadow(0 0 14px rgba(224, 150, 10, .75));
+      animation: twinkle var(--d) ease-in-out var(--w) infinite; }
+    .sparkles b::before { content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle, #FFFDF0 0 16%, #FFC933 42%, #E09A00 72%, #B87400 100%);
+      clip-path: polygon(50% 0, 59% 41%, 100% 50%, 59% 59%, 50% 100%, 41% 59%, 0 50%, 41% 41%); }
+    @keyframes twinkle {
+      0%, 100% { opacity: .22; transform: scale(.45) rotate(0deg); }
+      50% { opacity: 1; transform: scale(1.15) rotate(45deg); }
+    }
+    /* the still field behind the ring: small pale-gold stars scattered round the marble,
+       each fading in and out on its own clock. Softer than the orbiting ones on purpose,
+       so the two layers read as near and far rather than as one crowd. */
+    .stardust { position: absolute; width: min(590px, 108vw); aspect-ratio: 1; pointer-events: none; }
+    .stardust i { position: absolute; width: var(--s); aspect-ratio: 1; margin: calc(var(--s) / -2);
+      filter: drop-shadow(0 0 4px rgba(255, 214, 120, .95)) drop-shadow(0 0 10px rgba(240, 190, 80, .5));
+      animation: glimmer var(--d) ease-in-out var(--w) infinite; opacity: 0; }
+    .stardust i::before { content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle, #FFFDF2 0 20%, #FFE39A 50%, #EBBE5A 100%);
+      clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%); }
+    @keyframes glimmer {
+      0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); }
+      50% { opacity: .95; transform: scale(1) rotate(45deg); }
+    }
+    /* No prefers-reduced-motion opt-out here, by the owner's decision: the hero
+       animation plays on every device, including ones set to reduce motion. */
+
+    /* ---------- sections ---------- */
+    section { padding: 68px 0; }
+    .sec-head { text-align: center; max-width: 620px; margin: 0 auto 38px; }
+    .sec-head h2 { font-size: clamp(27px, 3.4vw, 38px); margin-bottom: 12px; }
+    .sec-head p { color: var(--ink-2); font-size: var(--fs-lg); line-height: 1.6; }
+
+    .glass-card { background: var(--glass); border: 1px solid var(--glass-line);
+      border-radius: var(--r-xl); backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      box-shadow: inset 0 1px 0 var(--glass-line), 0 16px 40px -24px rgba(var(--shadow-rgb), .40); }
+
+    /* promotions */
+    .promo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+    .promo { padding: 24px; position: relative; overflow: hidden; }
+    .promo::after { content: ''; position: absolute; top: -40px; right: -40px; width: 140px;
+      aspect-ratio: 1; border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--rose-rgb), .22), transparent 70%); }
+    .promo > * { position: relative; z-index: 1; }
+    .promo .tag { display: inline-block; padding: 4px 12px; border-radius: var(--r-pill);
+      background: var(--primary); color: #fff; font-size: var(--fs-xs); font-weight: 700; }
+    .promo h3 { font-size: var(--fs-lg); margin: 14px 0 8px; line-height: 1.4; }
+    .promo p { font-size: var(--fs-base); color: var(--ink-2); line-height: 1.6; }
+    .promo .price { font-family: var(--font-num); font-size: 28px; color: var(--primary);
+      margin-top: 14px; }
+    .promo .until { font-size: var(--fs-xs); color: var(--muted); margin-top: 6px; }
+
+    /* treatments */
+    .pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+    .pill { padding: 8px 17px; border-radius: var(--r-pill); border: 1px solid var(--border-2);
+      background: var(--surface); font: inherit; font-size: var(--fs-base); font-weight: 600;
+      color: var(--ink-2); cursor: pointer; transition: all 150ms ease; }
+    .pill:hover { border-color: var(--primary); color: var(--primary); }
+    .pill.on { background: var(--primary); border-color: var(--primary); color: #fff;
+      box-shadow: 0 6px 16px -6px rgba(var(--primary-rgb), .55); }
+    .svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(258px, 1fr)); gap: 18px; }
+    .svc { overflow: hidden; display: flex; flex-direction: column;
+      transition: transform 240ms cubic-bezier(.22,.7,.28,1), box-shadow 240ms ease; }
+    .svc:hover { transform: translateY(-5px);
+      box-shadow: inset 0 1px 0 var(--glass-line), 0 26px 50px -26px rgba(var(--shadow-rgb), .50); }
+    .svc .ph { aspect-ratio: 16/10; background: linear-gradient(150deg, var(--surface-3), var(--primary-soft));
+      overflow: hidden; }
+    .svc .ph img { width: 100%; height: 100%; object-fit: cover; }
+    .svc .body { padding: 17px 19px 20px; display: flex; flex-direction: column; flex: 1; }
+    .svc .cat { font-size: var(--fs-xs); font-weight: 700; color: var(--clay);
+      letter-spacing: .07em; text-transform: uppercase; }
+    .svc h3 { font-size: var(--fs-md); margin: 7px 0 9px; line-height: 1.45; }
+    .svc .desc { font-size: var(--fs-sm); color: var(--muted); line-height: 1.6; flex: 1;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .svc .foot { display: flex; align-items: baseline; justify-content: space-between;
+      gap: 10px; margin-top: 15px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .svc .amt { font-family: var(--font-num); font-size: 21px; color: var(--primary); }
+    .svc .dur { font-size: var(--fs-xs); color: var(--muted); }
+
+    /* doctors + branches */
+    .doc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr)); gap: 18px; }
+    .doc { padding: 26px; text-align: center; }
+    .doc .av { width: 76px; height: 76px; border-radius: 50%; margin: 0 auto 15px;
+      background: linear-gradient(150deg, #6A74DC, var(--primary)); color: #fff;
+      display: grid; place-items: center; font-size: 25px; font-weight: 600; overflow: hidden;
+      font-family: var(--font-display);
+      box-shadow: 0 12px 26px -10px rgba(var(--primary-rgb), .55); }
+    .doc .av img { width: 100%; height: 100%; object-fit: cover; }
+    .doc h3 { font-size: var(--fs-md); margin-bottom: 5px; }
+    .doc .role { font-size: var(--fs-sm); color: var(--clay); font-weight: 600; }
+    .doc .bio { font-size: var(--fs-sm); color: var(--muted); line-height: 1.65; margin-top: 11px; }
+
+    .br-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .br { padding: 26px; }
+    .br h3 { font-size: var(--fs-lg); margin-bottom: 10px; }
+    .br .addr { font-size: var(--fs-base); color: var(--ink-2); line-height: 1.65; }
+    .br .tel { display: inline-flex; align-items: center; gap: 7px; margin-top: 12px;
+      font-weight: 600; color: var(--primary); font-size: var(--fs-base); }
+    .hrs { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .hrs .row { display: flex; justify-content: space-between; gap: 12px; font-size: var(--fs-sm);
+      padding: 3px 0; color: var(--ink-2); }
+    .hrs .row.closed { color: var(--muted); }
+    .hrs .row b { font-weight: 600; }
+
+    /* CTA band */
+    .cta-band { padding: 54px 44px; text-align: center; border-radius: var(--r-xl);
+      position: relative; overflow: hidden; color: #fff;
+      background: linear-gradient(142deg, #6A74DC 0%, var(--primary) 46%, #2F3B9E 100%);
+      box-shadow: 0 34px 70px -32px rgba(var(--primary-rgb), .72); }
+    .cta-band::after { content: ''; position: absolute; top: -90px; right: -70px; width: 320px;
+      aspect-ratio: 1; border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--clay-rgb), .55), transparent 68%); }
+    .cta-band > * { position: relative; z-index: 1; }
+    .cta-band h2 { font-size: clamp(26px, 3.4vw, 38px); margin-bottom: 14px; }
+    .cta-band p { opacity: .9; font-size: var(--fs-lg); line-height: 1.6;
+      max-width: 62ch; margin: 0 auto 26px; text-wrap: balance; }
+    .cta-band .btn-ghost { background: rgba(255,255,255,.16); color: #fff;
+      border-color: rgba(255,255,255,.42); }
+    .cta-band .btn-ghost:hover { background: rgba(255,255,255,.26); color: #fff;
+      border-color: #fff; }
+    .cta-band .btn-primary { background: #fff; color: var(--primary); box-shadow: none; }
+
+    footer { border-top: 1px solid var(--border); padding: 40px 0 54px; margin-top: 54px;
+      font-size: var(--fs-base); color: var(--muted); }
+    footer .wrap { text-align: center; }
+    /* logo centred; the staff button keeps its old spot on the right */
+    .foot-in { position: relative; display: flex; justify-content: center; align-items: center;
+      min-height: 44px; }
+    .foot-staff { position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+      padding: 8px 18px; font-size: var(--fs-sm); }
+    @media (max-width: 720px) {
+      .foot-in { flex-direction: column; gap: 14px; }
+      .foot-staff { position: static; transform: none; }
+    }
+    .foot-note { font-size: var(--fs-sm); margin-top: 14px; line-height: 1.6; }
+    .foot-credit { margin-top: 6px; }
+
+    /* ---------- floating chat ---------- */
+    .chat-fab { position: fixed; right: 22px; bottom: 22px; z-index: 60;
+      width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer;
+      background: linear-gradient(160deg, #6A74DC, var(--primary)); color: #fff;
+      display: grid; place-items: center;
+      box-shadow: 0 16px 34px -10px rgba(var(--primary-rgb), .66);
+      transition: transform 180ms cubic-bezier(.22,.7,.28,1); }
+    .chat-fab:hover { transform: scale(1.08); }
+    .chat-fab .x { display: none; }
+    .chat-fab.open .bubble-ic { display: none; }
+    .chat-fab.open .x { display: block; }
+    .chat-dock { position: fixed; right: 22px; bottom: 94px; z-index: 60;
+      width: min(392px, calc(100vw - 32px)); height: min(620px, calc(100vh - 128px));
+      border-radius: var(--r-xl); overflow: hidden; display: none;
+      border: 1px solid var(--glass-line); background: var(--surface);
+      box-shadow: 0 40px 80px -28px rgba(var(--scrim-rgb), .50);
+      animation: dock-in 260ms cubic-bezier(.22,.7,.28,1); }
+    .chat-dock.on { display: block; }
+    .chat-dock iframe { width: 100%; height: 100%; border: 0; display: block; }
+    @keyframes dock-in { from { opacity: 0; transform: translateY(16px) scale(.98); }
+                         to { opacity: 1; transform: none; } }
+
+    .skel { color: var(--muted); text-align: center; padding: 34px 0; font-size: var(--fs-md); }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 48px; gap: 36px; }
+      .orb-wrap { min-height: 320px; order: -1; }
+      .nav-links { display: none; }
+      .nav-cta { margin-left: auto; }
+      section { padding: 48px 0; }
+    }
+    @media (max-width: 560px) {
+      /* phone width: the hero button and the floating bubble already open the chat,
+         and the sign-up band further down covers the signed-out case */
+      .nav-cta [data-book] { display: none; }
+      .nav-cta .btn { padding: 8px 14px; }
+      .hero-stats { gap: 20px; flex-wrap: wrap; }
+      .hero-stats b { font-size: 30px; }
+      .cta-band { padding: 38px 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="marble"></div>
+
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="logo" href="/"><img class="wordmark" src="/assets/images/logo_full_trim.png?v=1" alt="Blinks Bright Beauty Clinic" /></a>
+      <nav class="nav-links">
+        <a href="#services" data-i18n="nav.services">บริการ</a>
+        <a href="#promos" data-i18n="nav.promos">โปรโมชัน</a>
+        <a href="#doctors" data-i18n="nav.doctors">ทีมแพทย์</a>
+        <a href="#branches" data-i18n="nav.branches">สาขา</a>
+      </nav>
+      <div class="nav-cta">
+        <div class="lang-toggle" id="lang-toggle" role="group" aria-label="Language">
+          <button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button>
+        </div>
+        <a class="btn btn-ghost" href="/portal" id="nav-login" data-i18n="nav.login">เข้าสู่ระบบ</a>
+        <button class="btn btn-primary" data-book data-i18n="nav.book">จองคิว</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="hero">
+        <div>
+          <span class="eyebrow" data-i18n="hero.eyebrow">ดูแลโดยแพทย์ผู้ชำนาญ</span>
+          <h1 class="display" data-i18n-html="hero.title">ผิวสุขภาพดี<br />ดูเป็น<em>ธรรมชาติ</em></h1>
+          <p class="lede" id="hero-lede" data-i18n="hero.lede">
+            ปรึกษาและจองคิวได้ตลอด 24 ชั่วโมงผ่านผู้ช่วย AI ของเรา
+            ตอบคำถามเรื่องบริการ ราคา และคิวว่างได้ทันที
+          </p>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-lg" data-chat data-i18n="hero.chat">คุยกับผู้ช่วย AI</button>
+            <a class="btn btn-ghost btn-lg" href="#services" data-i18n="hero.all">ดูบริการทั้งหมด</a>
+          </div>
+          <div class="hero-stats">
+            <div><b id="st-svc">—</b><span data-i18n="stat.services">บริการ</span></div>
+            <div><b id="st-doc">—</b><span data-i18n="stat.doctors">แพทย์</span></div>
+            <div><b id="st-br">—</b><span data-i18n="stat.branches">สาขา</span></div>
+            <div><b data-i18n="stat.24h">24 ชม.</b><span data-i18n="stat.online">จองออนไลน์</span></div>
+          </div>
+        </div>
+        <div class="orb-wrap">
+          <div class="orb-ring two"></div><div class="orb-ring"></div>
+          <div class="halo-rim" aria-hidden="true"></div>
+          <div class="halo" aria-hidden="true"></div>
+          <div class="stardust" id="stardust" aria-hidden="true"></div>
+          <div class="sparkles" id="sparkles" aria-hidden="true"></div>
+          <img class="orb" src="/assets/images/hero-goddess.png" width="1000" height="914"
+               alt="Blinks Bright" />
+        </div>
+      </section>
+
+      <section id="promos">
+        <div class="sec-head">
+          <h2 class="display" data-i18n="promos.title">โปรโมชันช่วงนี้</h2>
+          <p data-i18n="promos.sub">ราคาพิเศษที่คลินิกประกาศไว้ สอบถามรายละเอียดเพิ่มเติมกับผู้ช่วย AI ได้เลย</p>
+        </div>
+        <div class="promo-grid" id="promos-grid"><div class="skel" data-i18n="loading">กำลังโหลด…</div></div>
+      </section>
+
+      <section id="services">
+        <div class="sec-head">
+          <h2 class="display" data-i18n="services.title">บริการของเรา</h2>
+          <p data-i18n="services.sub">ทุกหัตถการประเมินและดูแลโดยแพทย์ ราคาที่แสดงเป็นราคาเริ่มต้นมาตรฐาน</p>
+        </div>
+        <div class="pills" id="pills"></div>
+        <div class="svc-grid" id="services-grid"><div class="skel" data-i18n="loading">กำลังโหลด…</div></div>
+      </section>
+
+      <section id="doctors">
+        <div class="sec-head">
+          <h2 class="display" data-i18n="doctors.title">ทีมแพทย์</h2>
+          <p data-i18n="doctors.sub">ปรึกษาแพทย์ก่อนเริ่มทุกโปรแกรม เพื่อออกแบบการดูแลที่เหมาะกับผิวของคุณ</p>
+        </div>
+        <div class="doc-grid" id="doctors-grid"><div class="skel" data-i18n="loading">กำลังโหลด…</div></div>
+      </section>
+
+      <section id="branches">
+        <div class="sec-head">
+          <h2 class="display" data-i18n="branches.title">สาขาของเรา</h2>
+          <p data-i18n="branches.sub">เลือกสาขาที่สะดวก สมาชิกจองคิวได้ทันทีผ่านแชท</p>
+        </div>
+        <div class="br-grid" id="branches-grid"><div class="skel" data-i18n="loading">กำลังโหลด…</div></div>
+      </section>
+
+      <section>
+        <div class="cta-band">
+          <h2 class="display" data-i18n="cta.title">พร้อมเริ่มดูแลผิวแล้วหรือยัง</h2>
+          <p data-i18n-html="cta.sub">สมัครสมาชิกเพื่อดูประวัติการจอง นัดหมายที่กำลังจะถึง<br />และคุยกับผู้ช่วย AI ได้ต่อเนื่อง</p>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <a class="btn btn-primary btn-lg" href="/portal?tab=register" data-i18n="cta.register">สมัครสมาชิก</a>
+            <button class="btn btn-ghost btn-lg" data-chat data-i18n="cta.ask">สอบถามก่อน</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-in">
+        <div>
+          <div class="logo"><img class="wordmark foot-wordmark" src="/assets/images/logo_full_trim.png?v=1" alt="Blinks Bright Beauty Clinic" /></div>
+        </div>
+        <a class="btn btn-ghost foot-staff" href="/admin" data-i18n="foot.staff">สำหรับพนักงาน</a>
+      </div>
+      <p class="foot-note" data-i18n-html="foot.note">
+        เว็บไซต์นี้เป็นส่วนหนึ่งของโครงงานวิชา 06048308 Intelligent Chatbot Development
+        ข้อมูลคลินิก แพทย์ ราคา และโปรโมชันทั้งหมดเป็น<strong>ข้อมูลจำลอง</strong>
+        เพื่อการเรียนการสอน ไม่ใช่ธุรกิจจริง
+      </p>
+      <p class="foot-note foot-credit" data-i18n="foot.credit">
+        จัดทำโดย นางสาวชาลิสา น้อยบุญเติม (68076015) นางสาวศุภิสรา ศิริเสรี (68076063)
+      </p>
+    </div>
+  </footer>
+
+  <button class="chat-fab" id="fab" aria-label="เปิดแชท">
+    <svg class="bubble-ic" viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.1A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z" />
+    </svg>
+    <svg class="x" viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor"
+         stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+  </button>
+  <div class="chat-dock" id="dock"><iframe id="dock-frame" title="แชทกับผู้ช่วย AI" data-i18n-title="chat.title"></iframe></div>
+
+  <script>
+    const SLUG = new URLSearchParams(location.search).get('clinic') || 'blinks-bright';
+    const esc = (s) => String(s == null ? '' : s)
+      .replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const baht = (n) => '฿' + Number(n || 0).toLocaleString('th-TH');
+
+    /* ---- i18n (standalone page, no module imports) — same localStorage key as the
+       chat widget and the staff console, so one choice follows the visitor around.
+       Thai lives in the markup; EN holds only the English, and T() takes both for
+       strings built in script. Catalog data (names, descriptions) is not translated. */
+    const LANG = (function () {
+      try { return (localStorage.getItem('lang') || '').toLowerCase() === 'en' ? 'en' : 'th'; }
+      catch (e) { return 'th'; }
+    })();
+    const T = (th, en) => (LANG === 'en' ? en : th);
+    const EN = {
+      'nav.services': 'Treatments', 'nav.promos': 'Promotions', 'nav.doctors': 'Doctors',
+      'nav.branches': 'Branches', 'nav.login': 'Sign in', 'nav.book': 'Book now',
+      'hero.eyebrow': 'Doctor-led care',
+      'hero.title': 'Healthy skin,<br />naturally <em>you</em>',
+      'hero.lede': 'Ask and book around the clock through our AI assistant. '
+        + 'It answers questions about treatments, prices and open slots right away.',
+      'hero.chat': 'Chat with our AI assistant', 'hero.all': 'See all treatments',
+      'stat.services': 'Treatments', 'stat.doctors': 'Doctors', 'stat.branches': 'Branches',
+      'stat.24h': '24 hrs', 'stat.online': 'Online booking',
+      'promos.title': 'Current promotions',
+      'promos.sub': 'Special prices the clinic has announced. Ask our AI assistant for the details.',
+      'services.title': 'Our treatments',
+      'services.sub': 'Every procedure is assessed and supervised by a doctor. Prices shown are standard starting prices.',
+      'doctors.title': 'Our doctors',
+      'doctors.sub': 'Consult a doctor before every programme, so the care is designed for your skin.',
+      'branches.title': 'Our branches',
+      'branches.sub': 'Pick the branch that suits you. Members book straight away in the chat.',
+      'cta.title': 'Ready to start caring for your skin?',
+      'cta.sub': 'Sign up to see your booking history and upcoming appointments, and to keep chatting with our AI assistant.',
+      'cta.register': 'Sign up', 'cta.ask': 'Ask first',
+      'foot.staff': 'For staff',
+      'foot.credit': 'Created by Chalisa Noibunterm (68076015) and Supisara Siriseree (68076063)',
+      'foot.note': 'This website is part of a project for course 06048308 Intelligent Chatbot Development. '
+        + 'All clinic, doctor, price and promotion information is <strong>simulated data</strong> '
+        + 'for teaching purposes, not a real business.',
+      'chat.title': 'Chat with our AI assistant', 'loading': 'Loading…',
+    };
+    document.documentElement.lang = LANG;
+    if (LANG === 'en') {
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        if (EN[el.dataset.i18n]) el.textContent = EN[el.dataset.i18n]; });
+      document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+        if (EN[el.dataset.i18nHtml]) el.innerHTML = EN[el.dataset.i18nHtml]; });
+      document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+        if (EN[el.dataset.i18nTitle]) el.title = EN[el.dataset.i18nTitle]; });
+      document.title = 'Blinks Bright — Skin & Aesthetic Clinic';
+    }
+    document.querySelectorAll('#lang-toggle [data-lang]').forEach((b) => {
+      b.classList.toggle('active', b.dataset.lang === LANG);
+      b.setAttribute('aria-pressed', b.dataset.lang === LANG);
+      b.onclick = () => {
+        if (b.dataset.lang === LANG) return;
+        try { localStorage.setItem('lang', b.dataset.lang); } catch (e) { /* private mode */ }
+        location.reload();
+      };
+    });
+    const DATE_LOCALE = T('th-TH', 'en-GB');
+    const DAYS = LANG === 'en'
+      ? { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday',
+          fri: 'Friday', sat: 'Saturday', sun: 'Sunday' }
+      : { mon: 'จันทร์', tue: 'อังคาร', wed: 'พุธ', thu: 'พฤหัสบดี',
+          fri: 'ศุกร์', sat: 'เสาร์', sun: 'อาทิตย์' };
+    const initials = (s) => String(s || '?').replace(/^(นพ|พญ|ดร)\.\s*/, '').trim().charAt(0) || '?';
+
+    /* ---- stardust: [angle°, radius % of the field, size px, period s, delay s].
+       Radii 36-50% keep every star outside the marble (its edge is at ~34%). ---- */
+    document.getElementById('stardust').innerHTML = [
+      [6, 45, 16, 2.8, 0], [19, 38, 9, 3.6, 1.7], [33, 49, 11, 3.2, .9], [47, 41, 8, 2.6, 2.3],
+      [61, 47, 14, 3.9, .4], [76, 37, 9, 3.0, 1.2], [90, 50, 10, 2.7, 2.8], [104, 43, 18, 3.5, .6],
+      [119, 38, 8, 2.9, 2.0], [133, 48, 12, 3.3, 1.4], [148, 42, 9, 2.5, .2], [162, 50, 15, 3.8, 2.5],
+      [177, 39, 10, 3.1, 1.0], [191, 46, 8, 2.7, 1.9], [206, 41, 13, 3.4, .7], [220, 49, 9, 2.9, 2.6],
+      [235, 37, 11, 3.7, 1.5], [249, 45, 17, 3.0, .3], [264, 50, 8, 2.6, 2.1], [278, 40, 12, 3.3, 1.1],
+      [293, 47, 9, 2.8, 2.9], [307, 38, 14, 3.6, .8], [322, 49, 10, 3.1, 1.8], [336, 43, 8, 2.5, .5],
+      [350, 50, 12, 3.4, 2.2],
+    ].map(([a, r, sz, d, w]) => {
+      const rad = a * Math.PI / 180;
+      return `<i style="left:${(50 + r * Math.cos(rad)).toFixed(2)}%;top:${(50 + r * Math.sin(rad)).toFixed(2)}%;`
+        + `--s:${sz}px;--d:${d}s;--w:${w}s"></i>`;
+    }).join('');
+
+    /* ---- Saturn ring: each star is [start angle°, radius x the ring, size px].
+       A fixed list rather than Math.random(), so
+       the ring looks composed and identical on every load. ---- */
+    (function saturn() {
+      const field = document.getElementById('sparkles');
+      const STARS = [
+        [0, 1.00, 26], [22, .93, 15], [45, 1.05, 20], [68, .97, 30],
+        [90, 1.02, 14], [112, .92, 22], [135, 1.06, 16], [158, .98, 28],
+        [180, 1.00, 14], [202, .94, 24], [225, 1.04, 16], [248, .96, 20],
+        [270, 1.01, 32], [292, .93, 15], [315, 1.05, 22], [338, .98, 18],
+      ];
+      const BLINK = 1.5;                           // s for one twinkle
+      const PERIOD = 40000;                        // ms for one lap
+      const FLAT = 0.30;                           // ellipse height / width
+      const BOB = 5, BOB_PERIOD = 6000;            // px up and down, ms per rise-and-fall
+      const orb = document.querySelector('.orb');
+      const TILT = -16 * Math.PI / 180, COS = Math.cos(TILT), SIN = Math.sin(TILT);
+      field.innerHTML = STARS.map(([, , sz], n) =>
+        // neighbours twinkle in antiphase: every other star is half a beat behind, so
+        // the ring alternates (one set bright while the other dims) instead of pulsing
+        // at random. Negative delays start both sets mid-cycle, already out of step.
+        `<i style="--s:${sz}px;--d:${BLINK}s;--w:${n % 2 ? -BLINK / 2 : 0}s"><b></b></i>`).join('');
+      const els = field.querySelectorAll('i');
+      let half = field.offsetWidth / 2;
+      addEventListener('resize', () => { half = field.offsetWidth / 2; });
+
+      function place(t, bob) {
+        const turn = (t / PERIOD) * 2 * Math.PI;
+        STARS.forEach(([deg, rad], n) => {
+          const th = deg * Math.PI / 180 + turn;
+          const x = half * rad * Math.cos(th), y = half * rad * FLAT * Math.sin(th);
+          const near = Math.sin(th);               // +1 nearest the viewer, -1 farthest
+          // the lower half of the ellipse is the near side: in front of the marble
+          els[n].style.zIndex = near > 0 ? 3 : 1;
+          els[n].style.transform = `translate(${(x * COS - y * SIN).toFixed(1)}px,`
+            + `${(x * SIN + y * COS + bob).toFixed(1)}px) scale(${(0.72 + 0.38 * (near + 1) / 2).toFixed(3)})`;
+        });
+      }
+      // The marble's rise and fall is driven from here rather than by the CSS `float`
+      // animation, so the ring can ride the same offset: two clocks would drift apart
+      // and the stars would stop crossing the marble where its middle actually is.
+      orb.style.animation = 'none';
+      (function tick(t) {
+        const bob = -BOB * Math.cos((t / BOB_PERIOD) * 2 * Math.PI);
+        orb.style.transform = `translateY(${bob.toFixed(1)}px)`;
+        place(t, bob);
+        requestAnimationFrame(tick);
+      })(0);
+    })();
+
+    /* ---- floating chat: the existing widget, framed ----
+       Booking on the website is for members (tools.py::booking_requires_signup). A
+       signed-out visitor can still ask anything here, but "จองคิว" sends them to sign
+       up; a signed-in member gets their OWN portal thread, exactly as on /portal. */
+    const fab = document.getElementById('fab');
+    const dock = document.getElementById('dock');
+    const frame = document.getElementById('dock-frame');
+    const SIGNUP = '/portal?tab=register&next=book&clinic=' + encodeURIComponent(SLUG);
+    // resolves to true/false once /api/portal/me answers; every caller awaits it so a
+    // click before it lands cannot open the anonymous chat for a member
+    const member = fetch('/api/portal/me', { credentials: 'include' })
+      .then((r) => r.ok).catch(() => false);
+    member.then((yes) => {
+      if (!yes) return;
+      const a = document.getElementById('nav-login');
+      a.textContent = T('บัญชีของฉัน', 'My account');
+      a.removeAttribute('data-i18n');
+    });
+    async function chatSrc() {
+      const base = '/chat/' + encodeURIComponent(SLUG);
+      if (!(await member)) return base;
+      try {
+        const r = await fetch('/api/portal/chat', { method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }, body: '{}' });
+        if (r.ok) return base + '#token=' + encodeURIComponent((await r.json()).token);
+      } catch (e) { /* fall back to the anonymous widget */ }
+      return base;
+    }
+    async function toggleChat(force) {
+      const open = force != null ? force : !dock.classList.contains('on');
+      // the widget only loads on first open, so the landing page costs nothing
+      // extra to render for someone who never opens the chat
+      if (open && !frame.src) frame.src = await chatSrc();
+      dock.classList.toggle('on', open);
+      fab.classList.toggle('open', open);
+      fab.setAttribute('aria-label', open ? T('ปิดแชท', 'Close chat') : T('เปิดแชท', 'Open chat'));
+    }
+    fab.setAttribute('aria-label', T('เปิดแชท', 'Open chat'));
+    fab.onclick = () => toggleChat();
+    document.querySelectorAll('[data-chat]').forEach((b) => { b.onclick = () => toggleChat(true); });
+    document.querySelectorAll('[data-book]').forEach((b) => {
+      b.onclick = async () => {
+        if (await member) toggleChat(true);
+        else location.href = SIGNUP;
+      };
+    });
+
+    /* ---- content ---- */
+    function renderPromos(list) {
+      const host = document.getElementById('promos-grid');
+      if (!list.length) { host.innerHTML = `<div class="skel">${T('ขณะนี้ยังไม่มีโปรโมชัน', 'No promotions right now')}</div>`; return; }
+      host.innerHTML = list.map((p) => `
+        <article class="glass-card promo">
+          ${p.label ? `<span class="tag">${esc(p.label)}</span>` : ''}
+          <h3>${esc(p.title)}</h3>
+          <p>${esc(p.detail || '')}</p>
+          ${p.promo_price ? `<div class="price">${baht(p.promo_price)}</div>` : ''}
+          ${p.service_name ? `<div class="until">${T('เฉพาะ', 'Only for')} ${esc(p.service_name)}</div>` : ''}
+          ${p.valid_to ? `<div class="until">${T('ถึง', 'Until')} ${new Date(p.valid_to).toLocaleDateString(DATE_LOCALE,
+              { day: 'numeric', month: 'short', year: '2-digit' })}</div>` : ''}
+        </article>`).join('');
+    }
+
+    let ALL = [], CAT = 'all';
+    function renderServices() {
+      const host = document.getElementById('services-grid');
+      const rows = CAT === 'all' ? ALL : ALL.filter((s) => s.category === CAT);
+      if (!rows.length) { host.innerHTML = `<div class="skel">${T('ยังไม่มีบริการในหมวดนี้', 'No treatments in this category yet')}</div>`; return; }
+      host.innerHTML = rows.map((s) => `
+        <article class="glass-card svc">
+          <div class="ph">${s.image ? `<img src="${esc(s.image)}" alt="${esc(s.name)}" loading="lazy">` : ''}</div>
+          <div class="body">
+            ${s.category ? `<span class="cat">${esc(s.category)}</span>` : ''}
+            <h3>${esc(s.name)}</h3>
+            <p class="desc">${esc(s.description || '')}</p>
+            <div class="foot">
+              <span class="amt">${baht(s.price)}</span>
+              <span class="dur">${s.duration_min} ${T('นาที', 'min')}</span>
+            </div>
+          </div>
+        </article>`).join('');
+    }
+    function renderPills(cats) {
+      const host = document.getElementById('pills');
+      const all = ['all'].concat(cats);
+      host.innerHTML = all.map((c) =>
+        `<button class="pill${c === CAT ? ' on' : ''}" data-cat="${esc(c)}">${c === 'all' ? T('ทั้งหมด', 'All') : esc(c)}</button>`).join('');
+      host.querySelectorAll('[data-cat]').forEach((b) => {
+        b.onclick = () => { CAT = b.dataset.cat; renderPills(cats); renderServices(); };
+      });
+    }
+
+    function renderDoctors(list) {
+      const host = document.getElementById('doctors-grid');
+      if (!list.length) { host.innerHTML = '<div class="skel">—</div>'; return; }
+      host.innerHTML = list.map((d) => `
+        <article class="glass-card doc">
+          <div class="av">${d.avatar ? `<img src="${esc(d.avatar)}" alt="${esc(d.name)}" loading="lazy">`
+            : esc(initials(d.name))}</div>
+          <h3>${esc(d.name)}</h3>
+          <div class="role">${esc(d.title || '')}</div>
+          <p class="bio">${esc(d.bio || '')}</p>
+        </article>`).join('');
+    }
+
+    function renderBranches(list) {
+      const host = document.getElementById('branches-grid');
+      host.innerHTML = list.map((b) => {
+        // Hours come from the server's own branch_days reader, so the page can never
+        // state an opening time the booking engine disagrees with.
+        const h = b.hours || {};
+        const rows = Object.keys(DAYS).map((k) => {
+          const d = h[k];
+          if (!d || d.closed) return `<div class="row closed"><b>${DAYS[k]}</b><span>${T('ปิด', 'Closed')}</span></div>`;
+          return `<div class="row"><b>${DAYS[k]}</b><span>${esc(d.open)} - ${esc(d.close)}</span></div>`;
+        }).join('');
+        return `<article class="glass-card br">
+          <h3>${esc(b.name)}</h3>
+          <p class="addr">${esc(b.address || '')}</p>
+          ${b.phone ? `<a class="tel" href="tel:${esc(b.phone)}">${T('โทร', 'Call')} ${esc(b.phone)}</a>` : ''}
+          ${Object.keys(h).length ? `<div class="hrs">${rows}</div>` : ''}
+        </article>`;
+      }).join('');
+    }
+
+    (async function load() {
+      try {
+        const r = await fetch('/api/portal/home?slug=' + encodeURIComponent(SLUG));
+        if (!r.ok) throw new Error(r.status);
+        const d = await r.json();
+        const c = d.clinic || {};
+        if (c.name) {
+          document.title = c.name + T(' — คลินิกผิวพรรณและความงาม', ' — Skin & Aesthetic Clinic');
+        }
+        // the clinic's tagline is stored in Thai only, so English keeps the built-in lede
+        if (c.tagline && LANG === 'th') document.getElementById('hero-lede').textContent = c.tagline;
+
+        ALL = d.services || [];
+        document.getElementById('st-svc').textContent = ALL.length;
+        document.getElementById('st-doc').textContent = (d.doctors || []).length;
+        document.getElementById('st-br').textContent = (d.branches || []).length;
+        renderPills(d.categories || []);
+        renderServices();
+        renderPromos(d.promotions || []);
+        renderDoctors(d.doctors || []);
+        renderBranches(d.branches || []);
+      } catch (e) {
+        document.querySelectorAll('.skel').forEach((s) => {
+          s.textContent = T('ขออภัย ขณะนี้โหลดข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
+                            'Sorry, the information could not be loaded. Please try again.');
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

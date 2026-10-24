@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>บัญชีของฉัน — Blinks Bright</title>
+  <link rel="icon" type="image/png" href="/assets/images/logo_b.png?v=5" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&family=Kanit:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <!-- headings use Kanit; body text keeps the tokens.css fonts (Inter + Sarabun) -->
+  <style>:root { --font-display: 'Kanit', 'Sarabun', sans-serif; }</style>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font); color: var(--ink); background: var(--canvas);
+      -webkit-font-smoothing: antialiased; }
+    h1, h2, h3, h4, p { margin: 0; }
+    a { color: inherit; text-decoration: none; }
+    .display { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.02em;
+      line-height: 1.15; }
+    .marble { position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        radial-gradient(1100px 660px at 92% -10%, rgba(var(--clay-rgb), 0.20), transparent 60%),
+        radial-gradient(900px 600px at -6% 10%, rgba(var(--primary-rgb), 0.17), transparent 58%),
+        radial-gradient(820px 560px at 46% 106%, rgba(var(--violet-rgb), 0.13), transparent 62%),
+        linear-gradient(180deg, var(--canvas), var(--canvas-2)); }
+    .wrap { width: min(1060px, 100% - 36px); margin-inline: auto; }
+
+    .glass { background: var(--glass); border: 1px solid var(--glass-line);
+      border-radius: var(--r-xl); backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      box-shadow: inset 0 1px 0 var(--glass-line), 0 16px 40px -24px rgba(var(--shadow-rgb), .40); }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 20px; border-radius: var(--r-pill); font: inherit; font-size: var(--fs-md);
+      font-weight: 600; cursor: pointer; border: 1px solid transparent; white-space: nowrap;
+      transition: transform 120ms ease, box-shadow 180ms ease, background 180ms ease; }
+    .btn:active:not(:disabled) { transform: translateY(1px); }
+    .btn:disabled { opacity: .55; cursor: default; }
+    .btn-primary { background: linear-gradient(160deg, #6A74DC, var(--primary)); color: #fff;
+      box-shadow: 0 8px 20px -7px rgba(var(--primary-rgb), .62); }
+    .btn-ghost { background: var(--surface); color: var(--ink); border-color: var(--border-2); }
+    .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-block { width: 100%; padding: 13px 20px; }
+
+    /* ---------- auth ---------- */
+    .auth { min-height: calc(100vh - 110px); display: grid; place-items: center; padding: 40px 18px; }
+    /* hidden until the page knows which view it is showing, so it never flashes alone */
+    .site-foot { display: none; padding: 22px 0 34px; color: var(--muted);
+      font-size: var(--fs-sm); line-height: 1.6; text-align: center; }
+    body:has(#auth:not([hidden])) .site-foot, body:has(#app:not([hidden])) .site-foot { display: block; }
+    .site-foot p { margin: 0; }
+    .site-foot p + p { margin-top: 6px; }
+    .auth-card { width: min(430px, 100%); padding: 34px; }
+    .auth-logo { display: flex; align-items: center; gap: 11px; justify-content: center;
+      margin-bottom: 22px; font-weight: 700; font-size: 17px; }
+    .auth-logo .mark { width: 40px; height: 40px; border-radius: 12px; display: grid;
+      place-items: center; overflow: hidden; color: #fff; font-weight: 700;
+      background: linear-gradient(143deg, #6A74DC, var(--primary));
+      box-shadow: 0 7px 18px -5px rgba(var(--primary-rgb), .58); }
+    .auth-logo .wordmark { width: min(300px, 100%); height: auto; }
+    .auth-logo .mark img { width: 100%; height: 100%; object-fit: contain; }
+    .auth-logo .mark:has(img) { background: none; box-shadow: none; border-radius: 0; }
+    .tabs { display: flex; gap: 5px; padding: 5px; border-radius: var(--r-pill);
+      background: var(--surface-3); margin-bottom: 24px; }
+    .tabs button { flex: 1; padding: 9px; border: none; border-radius: var(--r-pill);
+      background: none; font: inherit; font-size: var(--fs-md); font-weight: 600;
+      color: var(--muted); cursor: pointer; transition: all 160ms ease; }
+    .tabs button.on { background: var(--surface); color: var(--primary); box-shadow: var(--sh-xs); }
+    .field { margin-bottom: 15px; }
+    .field label { display: block; font-size: var(--fs-sm); font-weight: 600;
+      color: var(--ink-2); margin-bottom: 6px; }
+    .field input { width: 100%; padding: 12px 14px; border: 1px solid var(--border-2);
+      border-radius: var(--r-md); font: inherit; font-size: var(--fs-md); background: var(--surface);
+      color: var(--ink); outline: none; transition: border-color 150ms ease, box-shadow 150ms ease; }
+    .field input:focus { border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .14); }
+    .field .hint { font-size: var(--fs-xs); color: var(--muted); margin-top: 5px; }
+    /* show/hide password: eye open = visible, eye closed = hidden */
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 46px; }
+    .pw-eye { position: absolute; top: 50%; right: 6px; transform: translateY(-50%);
+      width: 36px; height: 36px; border: 0; background: none; border-radius: 50%;
+      display: grid; place-items: center; color: var(--muted); cursor: pointer; }
+    .pw-eye:hover { color: var(--primary); background: rgba(var(--primary-rgb), .08); }
+    .pw-eye:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+    .pw-eye svg { width: 20px; height: 20px; }
+    .msg { display: none; padding: 11px 14px; border-radius: var(--r-md); font-size: var(--fs-sm);
+      line-height: 1.55; margin-bottom: 15px; }
+    .msg.on { display: block; }
+    .msg.err { background: var(--danger-bg); color: var(--danger); }
+    .msg.ok { background: var(--success-bg); color: var(--success); }
+    .auth-foot { text-align: center; margin-top: 20px; font-size: var(--fs-sm); color: var(--muted); }
+    .auth-foot a { color: var(--primary); font-weight: 600; }
+
+    /* ---------- app shell ---------- */
+    .topbar { position: sticky; top: 0; z-index: 40; border-bottom: 1px solid var(--border);
+      background: rgba(247, 249, 254, 0.74);
+      backdrop-filter: saturate(170%) blur(16px); -webkit-backdrop-filter: saturate(170%) blur(16px); }
+    .topbar-in { display: flex; align-items: center; gap: 14px; height: 66px; }
+    .topbar-wordmark { height: 40px; width: auto; display: block; }
+    @media (max-width: 560px) { .topbar-wordmark { height: 30px; } }
+    .topbar .mark { width: 34px; height: 34px; border-radius: 10px; display: grid;
+      place-items: center; overflow: hidden; color: #fff; font-weight: 700; font-size: 14px;
+      background: linear-gradient(143deg, #6A74DC, var(--primary)); }
+    .topbar .mark img { width: 100%; height: 100%; object-fit: cover; }
+    .topbar .who { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .topbar .who .nm { font-size: var(--fs-base); font-weight: 600; }
+    .linkbtn { background: none; border: none; font: inherit; font-size: var(--fs-base);
+      color: var(--muted); cursor: pointer; padding: 6px 10px; border-radius: var(--r-sm); }
+    .linkbtn:hover { color: var(--danger); background: var(--danger-bg); }
+
+    .page { padding: 32px 0 70px; }
+    .hello { margin-bottom: 26px; }
+    .hello h1 { font-size: clamp(26px, 3.6vw, 34px); margin-bottom: 7px; }
+    .hello p { color: var(--ink-2); font-size: var(--fs-md); }
+
+    .cols { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: start; }
+    .panel { padding: 24px; margin-bottom: 20px; }
+    .panel h2 { font-size: var(--fs-lg); margin-bottom: 4px; }
+    .panel .sub { font-size: var(--fs-sm); color: var(--muted); margin-bottom: 18px; }
+
+    /* next appointment */
+    .next { padding: 26px; color: #fff; position: relative; overflow: hidden;
+      border-radius: var(--r-xl); margin-bottom: 20px;
+      background: linear-gradient(142deg, #6A74DC 0%, var(--primary) 52%, #2F3B9E 100%);
+      box-shadow: 0 28px 60px -28px rgba(var(--primary-rgb), .70); }
+    .next::after { content: ''; position: absolute; top: -80px; right: -60px; width: 250px;
+      aspect-ratio: 1; border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--clay-rgb), .50), transparent 68%); }
+    .next > * { position: relative; z-index: 1; }
+    .next .lbl { font-size: var(--fs-xs); font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; opacity: .82; }
+    .next h3 { font-family: var(--font-display); font-size: 25px; margin: 9px 0 14px; font-weight: 500; }
+    .next .meta { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: var(--fs-base); opacity: .95; }
+    .next .meta div { display: flex; align-items: center; gap: 7px; }
+    .next .chip { display: inline-block; margin-top: 16px; padding: 5px 13px;
+      border-radius: var(--r-pill); background: rgba(255,255,255,.2); font-size: var(--fs-sm);
+      font-weight: 600; }
+
+    /* bookings */
+    .bk { display: flex; gap: 14px; padding: 15px 0; border-bottom: 1px solid var(--border); }
+    .bk:last-child { border-bottom: none; padding-bottom: 0; }
+    .bk .ph { width: 58px; height: 58px; border-radius: var(--r-md); flex-shrink: 0;
+      overflow: hidden; background: linear-gradient(150deg, var(--surface-3), var(--primary-soft)); }
+    .bk .ph img { width: 100%; height: 100%; object-fit: cover; }
+    .bk .in { flex: 1; min-width: 0; }
+    .bk .nm { font-weight: 600; font-size: var(--fs-md); }
+    .bk .sub2 { font-size: var(--fs-sm); color: var(--muted); margin-top: 3px; line-height: 1.55; }
+    .bk .rt { text-align: right; flex-shrink: 0; }
+    .bk .amt { font-weight: 700; font-size: var(--fs-md); }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: var(--r-pill);
+      font-size: var(--fs-xs); font-weight: 700; margin-top: 5px; }
+    .b-pending { background: var(--st-interested-bg); color: var(--st-interested); }
+    .b-confirmed { background: var(--st-booked-bg); color: var(--st-booked); }
+    .b-done, .b-completed { background: var(--st-paid-bg); color: var(--st-paid); }
+    .b-cancelled, .b-expired, .b-no_show { background: var(--st-lost-bg); color: var(--st-lost); }
+
+    .empty { text-align: center; padding: 30px 10px; color: var(--muted); font-size: var(--fs-md); }
+    .empty .btn { margin-top: 16px; }
+
+    .kv { display: flex; justify-content: space-between; gap: 14px; padding: 9px 0;
+      font-size: var(--fs-base); border-bottom: 1px solid var(--border); }
+    .kv:last-child { border-bottom: none; }
+    .kv span { color: var(--muted); }
+    .kv b { font-weight: 600; text-align: right; }
+
+    /* chat dock (same pattern as the landing page) */
+    .chat-fab { position: fixed; right: 22px; bottom: 22px; z-index: 60; width: 60px; height: 60px;
+      border-radius: 50%; border: none; cursor: pointer; color: #fff; display: grid; place-items: center;
+      background: linear-gradient(160deg, #6A74DC, var(--primary));
+      box-shadow: 0 16px 34px -10px rgba(var(--primary-rgb), .66);
+      transition: transform 180ms cubic-bezier(.22,.7,.28,1); }
+    .chat-fab:hover { transform: scale(1.08); }
+    .chat-fab .x { display: none; }
+    .chat-fab.open .bubble-ic { display: none; }
+    .chat-fab.open .x { display: block; }
+    .chat-dock { position: fixed; right: 22px; bottom: 94px; z-index: 60;
+      width: min(392px, calc(100vw - 32px)); height: min(620px, calc(100vh - 128px));
+      border-radius: var(--r-xl); overflow: hidden; display: none; background: var(--surface);
+      border: 1px solid var(--glass-line);
+      box-shadow: 0 40px 80px -28px rgba(var(--scrim-rgb), .50); }
+    .chat-dock.on { display: block; }
+    .chat-dock iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+    @media (max-width: 880px) { .cols { grid-template-columns: 1fr; } }
+    /* The page switches between signed-out and signed-in by toggling the `hidden`
+       attribute, but .auth / .chat-fab set their own `display`, which outranks the
+       browser's built-in [hidden] rule: the sign-in card stayed on screen, full height,
+       above the account page of a customer who HAD signed in. */
+    [hidden] { display: none !important; }
+    .lang-toggle { display: inline-flex; align-items: center; padding: 2px; flex-shrink: 0;
+      border-radius: var(--r-pill); background: transparent; border: 1px solid var(--border); }
+    .lang-toggle button { appearance: none; border: none; background: none; cursor: pointer;
+      font: inherit; font-size: 11.5px; font-weight: 500; color: var(--muted);
+      padding: 5px 9px; border-radius: var(--r-pill); line-height: 1;
+      transition: background 150ms ease, color 150ms ease; }
+    .lang-toggle button.active { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+    .lang-toggle button:not(.active):hover { color: var(--primary); }
+    .auth-lang { position: fixed; top: 18px; right: 20px; z-index: 40; }
+  </style>
+</head>
+<body>
+  <div class="marble"></div>
+
+  <!-- ===== signed out ===== -->
+  <div class="auth" id="auth" hidden>
+    <div class="auth-lang"><div class="lang-toggle" role="group" aria-label="Language"><button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button></div></div>
+    <div class="glass auth-card">
+      <a class="auth-logo" href="/"><img class="wordmark" src="/assets/images/logo_full.png?v=1" alt="Blinks Bright Beauty Clinic" /></a>
+      <div class="tabs">
+        <button type="button" data-tab="login" class="on" data-i18n="login">เข้าสู่ระบบ</button>
+        <button type="button" data-tab="register" data-i18n="register">สมัครสมาชิก</button>
+      </div>
+      <div class="msg" id="msg"></div>
+
+      <form id="form-login">
+        <div class="field">
+          <label for="li-phone" data-i18n="phone">เบอร์โทรศัพท์</label>
+          <input id="li-phone" type="tel" inputmode="numeric" autocomplete="username"
+                 placeholder="0812345678" required />
+        </div>
+        <div class="field">
+          <label for="li-pw" data-i18n="password">รหัสผ่าน</label>
+          <input id="li-pw" type="password" autocomplete="current-password" required />
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" data-i18n="login">เข้าสู่ระบบ</button>
+      </form>
+
+      <form id="form-register" hidden>
+        <div class="field">
+          <label for="rg-name" data-i18n="fullname">ชื่อ-นามสกุล</label>
+          <input id="rg-name" type="text" autocomplete="name" placeholder="ชื่อของคุณ" data-i18n-ph="yourname" required />
+        </div>
+        <div class="field">
+          <label for="rg-phone" data-i18n="phone">เบอร์โทรศัพท์</label>
+          <input id="rg-phone" type="tel" inputmode="numeric" autocomplete="username"
+                 placeholder="0812345678" required />
+          <div class="hint" data-i18n="phone.hint">ใช้เบอร์เดียวกับที่เคยแจ้งไว้ตอนจอง เพื่อให้เห็นประวัติการจองเดิม</div>
+        </div>
+        <div class="field">
+          <label for="rg-email" data-i18n="email.opt">อีเมล (ไม่บังคับ)</label>
+          <input id="rg-email" type="email" autocomplete="email" placeholder="you@email.com" />
+        </div>
+        <div class="field">
+          <label for="rg-pw" data-i18n="password">รหัสผ่าน</label>
+          <input id="rg-pw" type="password" autocomplete="new-password" minlength="8" required />
+          <div class="hint" data-i18n="pw.hint">อย่างน้อย 8 ตัวอักษร</div>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" data-i18n="register">สมัครสมาชิก</button>
+      </form>
+
+      <p class="auth-foot" data-i18n-html="auth.foot">ยังไม่พร้อมสมัคร? <a href="/">กลับหน้าแรก</a> หรือทักแชทสอบถามก่อนได้</p>
+    </div>
+  </div>
+
+  <!-- ===== signed in ===== -->
+  <div id="app" hidden>
+    <header class="topbar">
+      <div class="wrap topbar-in">
+        <a class="auth-logo" href="/" style="margin:0">
+          <img class="topbar-wordmark" src="/assets/images/logo_full_trim.png?v=1" alt="Blinks Bright Beauty Clinic" />
+        </a>
+        <div class="who">
+          <div class="lang-toggle" role="group" aria-label="Language"><button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button></div>
+          <span class="nm" id="t-who"></span>
+          <button class="linkbtn" id="logout" data-i18n="logout">ออกจากระบบ</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrap page">
+      <div class="hello">
+        <h1 class="display" id="greet">สวัสดีค่ะ</h1>
+        <p data-i18n="hello.sub">ดูนัดหมาย ประวัติการจอง และคุยกับผู้ช่วย AI ได้จากที่นี่</p>
+      </div>
+
+      <div id="next-host"></div>
+
+      <div class="cols">
+        <div>
+          <section class="glass panel">
+            <h2 data-i18n="bk.title">การจองของฉัน</h2>
+            <p class="sub" data-i18n="bk.sub">รายการทั้งหมด เรียงจากล่าสุด</p>
+            <div id="bookings"><div class="empty" data-i18n="loading">กำลังโหลด…</div></div>
+          </section>
+
+          <section class="glass panel">
+            <h2 data-i18n="pay.title">ประวัติการชำระเงิน</h2>
+            <p class="sub" data-i18n="pay.sub">ยอดที่ชำระผ่านลิงก์ของคลินิก</p>
+            <div id="payments"><div class="empty" data-i18n="loading">กำลังโหลด…</div></div>
+          </section>
+        </div>
+
+        <div>
+          <section class="glass panel">
+            <h2 data-i18n="pf.title">ข้อมูลของฉัน</h2>
+            <p class="sub" data-i18n="pf.sub">แก้ไขชื่อเล่นและอีเมลได้เอง</p>
+            <div id="profile"></div>
+          </section>
+
+          <section class="glass panel">
+            <h2 data-i18n="book.title">ต้องการจองคิว?</h2>
+            <p class="sub" data-i18n="book.sub">ผู้ช่วย AI ตรวจคิวว่างและจองให้ได้ทันที</p>
+            <button class="btn btn-primary btn-block" data-chat data-i18n="book.open">เปิดแชทจองคิว</button>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- project notice + authors: shown under both the sign-in card and the account -->
+  <footer class="site-foot">
+    <div class="wrap">
+      <p data-i18n-html="foot.note">
+        เว็บไซต์นี้เป็นส่วนหนึ่งของโครงงานวิชา 06048308 Intelligent Chatbot Development
+        ข้อมูลคลินิก แพทย์ ราคา และโปรโมชันทั้งหมดเป็น<strong>ข้อมูลจำลอง</strong>
+        เพื่อการเรียนการสอน ไม่ใช่ธุรกิจจริง
+      </p>
+      <p data-i18n="foot.credit">
+        จัดทำโดย นางสาวชาลิสา น้อยบุญเติม (68076015) นางสาวศุภิสรา ศิริเสรี (68076063)
+      </p>
+    </div>
+  </footer>
+
+  <button class="chat-fab" id="fab" aria-label="เปิดแชท" hidden>
+    <svg class="bubble-ic" viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.1A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z" />
+    </svg>
+    <svg class="x" viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor"
+         stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+  </button>
+  <div class="chat-dock" id="dock"><iframe id="dock-frame" title="แชทกับผู้ช่วย AI" data-i18n-title="chat.title"></iframe></div>
+
+  <script>
+    const SLUG = new URLSearchParams(location.search).get('clinic') || 'blinks-bright';
+    const esc = (s) => String(s == null ? '' : s)
+      .replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const baht = (n) => '฿' + Number(n || 0).toLocaleString('th-TH');
+
+    /* ---- i18n (standalone page, no module imports) — same localStorage key as the
+       home page, the chat widget and the staff console. Thai lives in the markup; EN
+       holds only the English, and T() takes both for strings built in script.
+       Messages the server sends back (body.detail) are not translated. */
+    const LANG = (function () {
+      try { return (localStorage.getItem('lang') || '').toLowerCase() === 'en' ? 'en' : 'th'; }
+      catch (e) { return 'th'; }
+    })();
+    const T = (th, en) => (LANG === 'en' ? en : th);
+
+    /* ---- password eye: open = shown, closed = hidden ---- */
+    const EYE_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+    const EYE_SHUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10s3.5 5 10 5 10-5 10-5"/><path d="M4.5 13.2 3 15.5M9 14.7 8.3 17.3M15 14.7l.7 2.6M19.5 13.2 21 15.5"/></svg>';
+    document.querySelectorAll('input[type="password"]').forEach((input) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'pw-wrap';
+      input.replaceWith(wrap);
+      wrap.appendChild(input);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pw-eye';
+      const paint = () => {
+        const shown = input.type === 'text';
+        btn.innerHTML = shown ? EYE_OPEN : EYE_SHUT;
+        btn.setAttribute('aria-label', shown ? T('ซ่อนรหัสผ่าน', 'Hide password') : T('แสดงรหัสผ่าน', 'Show password'));
+        btn.setAttribute('aria-pressed', String(shown));
+      };
+      btn.onclick = () => { input.type = input.type === 'password' ? 'text' : 'password'; paint(); input.focus(); };
+      paint();
+      wrap.appendChild(btn);
+    });
+    const EN = {
+      'login': 'Sign in', 'register': 'Sign up', 'logout': 'Sign out',
+      'phone': 'Phone number', 'password': 'Password', 'fullname': 'Full name',
+      'yourname': 'Your name', 'email.opt': 'Email (optional)',
+      'phone.hint': 'Use the number you gave when booking, so your earlier bookings show up',
+      'pw.hint': 'At least 8 characters',
+      'foot.note': 'This website is part of a project for course 06048308 Intelligent Chatbot Development. '
+        + 'All clinic, doctor, price and promotion information is <strong>simulated data</strong> '
+        + 'for teaching purposes, not a real business.',
+      'foot.credit': 'Created by Chalisa Noibunterm (68076015) and Supisara Siriseree (68076063)',
+      'auth.foot': 'Not ready to sign up? <a href="/">Back to the home page</a> or ask in the chat first.',
+      'hello.sub': 'See your appointments and booking history, and chat with our AI assistant, all from here',
+      'bk.title': 'My bookings', 'bk.sub': 'Everything, newest first',
+      'pay.title': 'Payment history', 'pay.sub': "Amounts paid through the clinic's payment links",
+      'pf.title': 'My details', 'pf.sub': 'You can edit your nickname and email yourself',
+      'book.title': 'Want to book?', 'book.sub': 'The AI assistant checks open slots and books for you right away',
+      'book.open': 'Open chat to book', 'chat.title': 'Chat with our AI assistant', 'loading': 'Loading…',
+    };
+    document.documentElement.lang = LANG;
+    if (LANG === 'en') {
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        if (EN[el.dataset.i18n]) el.textContent = EN[el.dataset.i18n]; });
+      document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+        if (EN[el.dataset.i18nHtml]) el.innerHTML = EN[el.dataset.i18nHtml]; });
+      document.querySelectorAll('[data-i18n-ph]').forEach((el) => {
+        if (EN[el.dataset.i18nPh]) el.placeholder = EN[el.dataset.i18nPh]; });
+      document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+        if (EN[el.dataset.i18nTitle]) el.title = EN[el.dataset.i18nTitle]; });
+      document.title = 'My account — Blinks Bright';
+      document.getElementById('greet').textContent = 'Hello';
+    }
+    document.querySelectorAll('.lang-toggle [data-lang]').forEach((b) => {
+      b.classList.toggle('active', b.dataset.lang === LANG);
+      b.setAttribute('aria-pressed', b.dataset.lang === LANG);
+      b.onclick = () => {
+        if (b.dataset.lang === LANG) return;
+        try { localStorage.setItem('lang', b.dataset.lang); } catch (e) { /* private mode */ }
+        location.reload();
+      };
+    });
+
+    const STATUS = LANG === 'en'
+      ? { pending: 'Awaiting deposit', confirmed: 'Confirmed', done: 'Completed', completed: 'Completed',
+          cancelled: 'Cancelled', expired: 'Hold expired', no_show: 'No-show' }
+      : { pending: 'รอชำระมัดจำ', confirmed: 'ยืนยันแล้ว', done: 'เสร็จสิ้น', completed: 'เสร็จสิ้น',
+          cancelled: 'ยกเลิก', expired: 'หมดเวลาถือคิว', no_show: 'ไม่มาตามนัด' };
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleString(T('th-TH', 'en-GB'),
+        { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit',
+          hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function api(path, opts) {
+      const r = await fetch('/api/portal' + path, Object.assign({
+        headers: { 'Content-Type': 'application/json' }, credentials: 'include' }, opts || {}));
+      let body = null;
+      try { body = await r.json(); } catch (e) { /* 204 / non-JSON */ }
+      if (!r.ok) {
+        const err = new Error((body && body.detail) || T('เกิดข้อผิดพลาด กรุณาลองใหม่', 'Something went wrong. Please try again.'));
+        err.status = r.status;
+        throw err;
+      }
+      return body;
+    }
+
+    /* ---------- chat dock ---------- */
+    const fab = document.getElementById('fab');
+    const dock = document.getElementById('dock');
+    const frame = document.getElementById('dock-frame');
+    let chatToken = null;
+    let NEXT_BOOK = new URLSearchParams(location.search).get('next') === 'book';
+    async function toggleChat(force) {
+      const open = force != null ? force : !dock.classList.contains('on');
+      if (open && !frame.src) {
+        // Ask the server for THIS customer's conversation and hand the widget its
+        // token, so a signed-in member continues their own thread instead of
+        // starting an anonymous one that the clinic can't tie to their record.
+        try {
+          if (!chatToken) chatToken = (await api('/chat', { method: 'POST', body: '{}' })).token;
+          frame.src = '/chat/' + encodeURIComponent(SLUG) + '#token=' + encodeURIComponent(chatToken);
+        } catch (e) {
+          frame.src = '/chat/' + encodeURIComponent(SLUG);
+        }
+      }
+      dock.classList.toggle('on', open);
+      fab.classList.toggle('open', open);
+      fab.setAttribute('aria-label', open ? T('ปิดแชท', 'Close chat') : T('เปิดแชท', 'Open chat'));
+    }
+    fab.setAttribute('aria-label', T('เปิดแชท', 'Open chat'));
+    fab.onclick = () => toggleChat();
+    document.querySelectorAll('[data-chat]').forEach((b) => { b.onclick = () => toggleChat(true); });
+
+    /* ---------- auth ---------- */
+    const authEl = document.getElementById('auth');
+    const appEl = document.getElementById('app');
+    const msgEl = document.getElementById('msg');
+    const fLogin = document.getElementById('form-login');
+    const fReg = document.getElementById('form-register');
+
+    function say(text, kind) {
+      msgEl.textContent = text || '';
+      msgEl.className = 'msg' + (text ? ' on ' + (kind || 'err') : '');
+    }
+    function showTab(tab) {
+      document.querySelectorAll('[data-tab]').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
+      fLogin.hidden = tab !== 'login';
+      fReg.hidden = tab !== 'register';
+      say('');
+    }
+    document.querySelectorAll('[data-tab]').forEach((b) => { b.onclick = () => showTab(b.dataset.tab); });
+
+    async function submit(form, fn) {
+      const btn = form.querySelector('button[type=submit]');
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = T('กำลังดำเนินการ…', 'Working…');
+      say('');
+      try { await fn(); } catch (e) { say(e.message); }
+      finally { btn.disabled = false; btn.textContent = label; }
+    }
+    fLogin.onsubmit = (e) => { e.preventDefault(); submit(fLogin, async () => {
+      const me = await api('/login', { method: 'POST', body: JSON.stringify({
+        phone: document.getElementById('li-phone').value,
+        password: document.getElementById('li-pw').value, clinic: SLUG }) });
+      enter(me);
+    }); };
+    fReg.onsubmit = (e) => { e.preventDefault(); submit(fReg, async () => {
+      const me = await api('/register', { method: 'POST', body: JSON.stringify({
+        name: document.getElementById('rg-name').value,
+        phone: document.getElementById('rg-phone').value,
+        email: document.getElementById('rg-email').value,
+        password: document.getElementById('rg-pw').value, clinic: SLUG }) });
+      enter(me);
+    }); };
+
+    document.getElementById('logout').onclick = async () => {
+      try { await api('/logout', { method: 'POST' }); } catch (e) { /* cookie is gone either way */ }
+      // the widget keeps this tab's chat token; drop it so the next person at this
+      // browser starts as a visitor rather than inside this member's thread
+      try { sessionStorage.removeItem('chat_token:' + SLUG); } catch (e) {}
+      location.reload();
+    };
+
+    /* ---------- dashboard ---------- */
+    function renderNext(list) {
+      const host = document.getElementById('next-host');
+      const next = list.filter((b) => b.upcoming)
+        .sort((a, b) => new Date(a.slot_at) - new Date(b.slot_at))[0];
+      if (!next) { host.innerHTML = ''; return; }
+      host.innerHTML = `
+        <section class="next">
+          <div class="lbl">${T('นัดหมายถัดไป', 'Next appointment')}</div>
+          <h3>${esc(next.service_name)}</h3>
+          <div class="meta">
+            <div>📅 ${esc(fmtDate(next.slot_at))}</div>
+            <div>📍 ${esc(next.branch_name)}</div>
+            ${next.doctor_name ? `<div>👩‍⚕️ ${esc(next.doctor_name)}</div>` : ''}
+          </div>
+          <span class="chip">${next.deposit_paid ? T('ชำระมัดจำแล้ว', 'Deposit paid')
+            : T('รอชำระมัดจำ ', 'Deposit due ') + baht(next.deposit_required)}</span>
+        </section>`;
+    }
+
+    function renderBookings(list) {
+      const host = document.getElementById('bookings');
+      if (!list.length) {
+        host.innerHTML = `<div class="empty">${T('ยังไม่มีการจอง', 'No bookings yet')}<br>
+          <button class="btn btn-primary" data-chat>${T('จองคิวแรกของคุณ', 'Make your first booking')}</button></div>`;
+        host.querySelector('[data-chat]').onclick = () => toggleChat(true);
+        return;
+      }
+      host.innerHTML = list.map((b) => `
+        <div class="bk">
+          <div class="ph">${b.service_image ? `<img src="${esc(b.service_image)}" alt="" loading="lazy">` : ''}</div>
+          <div class="in">
+            <div class="nm">${esc(b.service_name)}</div>
+            <div class="sub2">${esc(fmtDate(b.slot_at))}<br>${esc(b.branch_name)}${
+              b.doctor_name ? ' · ' + esc(b.doctor_name) : ''}</div>
+          </div>
+          <div class="rt">
+            <div class="amt">${baht(b.price)}</div>
+            <span class="badge b-${esc(b.status)}">${esc(STATUS[b.status] || b.status)}</span>
+          </div>
+        </div>`).join('');
+    }
+
+    function renderPayments(d) {
+      const host = document.getElementById('payments');
+      const rows = d.payments || [];
+      if (!rows.length) { host.innerHTML = `<div class="empty">${T('ยังไม่มีประวัติการชำระเงิน', 'No payments yet')}</div>`; return; }
+      host.innerHTML = rows.map((p) => `
+        <div class="kv">
+          <span>${esc(p.service_name || T('ชำระเงิน', 'Payment'))} · ${p.type === 'deposit' ? T('มัดจำ', 'Deposit') : T('เต็มจำนวน', 'Full payment')}<br>
+            <small>${esc(fmtDate(p.paid_at || p.created_at))}</small></span>
+          <b>${baht(p.amount)}<br><span class="badge b-${p.status === 'paid' ? 'done' : 'pending'}">${
+            p.status === 'paid' ? T('ชำระแล้ว', 'Paid') : T('รอชำระ', 'Unpaid')}</span></b>
+        </div>`).join('');
+    }
+
+    function renderProfile(me) {
+      const host = document.getElementById('profile');
+      host.innerHTML = `
+        <div class="field"><label for="pf-name">${T('ชื่อ', 'Name')}</label>
+          <input id="pf-name" type="text" value="${esc(me.name || '')}" /></div>
+        <div class="field"><label for="pf-nick">${T('ชื่อเล่น', 'Nickname')}</label>
+          <input id="pf-nick" type="text" value="${esc(me.nickname || '')}" /></div>
+        <div class="field"><label for="pf-email">${T('อีเมล', 'Email')}</label>
+          <input id="pf-email" type="email" value="${esc(me.email || '')}" /></div>
+        <div class="kv"><span>${T('เบอร์โทร', 'Phone')}</span><b>${esc(me.phone || '—')}</b></div>
+        <div class="kv"><span>${T('สาขาประจำ', 'Home branch')}</span><b>${esc(me.branch_name || T('ยังไม่ระบุ', 'Not set'))}</b></div>
+        <button class="btn btn-ghost btn-block" id="pf-save" style="margin-top:14px">${T('บันทึก', 'Save')}</button>
+        <div class="msg" id="pf-msg"></div>`;
+      const btn = document.getElementById('pf-save');
+      const pm = document.getElementById('pf-msg');
+      btn.onclick = async () => {
+        btn.disabled = true;
+        try {
+          const upd = await api('/me', { method: 'PATCH', body: JSON.stringify({
+            name: document.getElementById('pf-name').value,
+            nickname: document.getElementById('pf-nick').value,
+            email: document.getElementById('pf-email').value }) });
+          pm.textContent = T('บันทึกแล้ว', 'Saved'); pm.className = 'msg on ok';
+          document.getElementById('t-who').textContent = upd.nickname || upd.name;
+        } catch (e) { pm.textContent = e.message; pm.className = 'msg on err'; }
+        finally { btn.disabled = false; }
+      };
+    }
+
+    async function enter(me) {
+      authEl.hidden = true;
+      appEl.hidden = false;
+      fab.hidden = false;
+      const who = me.nickname || me.name || '';
+      document.getElementById('t-who').textContent = who;
+      document.getElementById('greet').textContent = T('สวัสดีค่ะ คุณ' + who, who ? 'Hello, ' + who : 'Hello');
+      renderProfile(me);
+      // arrived from the home page's "จองคิว" (or the widget's sign-up button): booking
+      // is members-only, so having just signed in, go straight on to the booking chat
+      if (NEXT_BOOK) { NEXT_BOOK = false; toggleChat(true); }
+      try {
+        const [bk, pay] = await Promise.all([api('/bookings'), api('/payments')]);
+        renderNext(bk.bookings || []);
+        renderBookings(bk.bookings || []);
+        renderPayments(pay);
+      } catch (e) {
+        document.getElementById('bookings').innerHTML =
+          `<div class="empty">${esc(e.message)}</div>`;
+      }
+    }
+
+    async function brand() {
+      try {
+        const d = await fetch('/api/portal/home?slug=' + encodeURIComponent(SLUG)).then((r) => r.json());
+        const c = (d && d.clinic) || {};
+        if (!c.name) return;
+        document.title = T('บัญชีของฉัน — ', 'My account — ') + c.name;
+      } catch (e) { /* branding is cosmetic; the page works without it */ }
+    }
+
+    (async function boot() {
+      brand();
+      if (new URLSearchParams(location.search).get('tab') === 'register') showTab('register');
+      if (NEXT_BOOK) say(T('การจองคิวผ่านเว็บไซต์สำหรับสมาชิก สมัครสมาชิกหรือเข้าสู่ระบบก่อนนะคะ แล้วระบบจะเปิดแชทจองคิวให้ทันที',
+                           'Online booking is for members. Sign up or sign in, and the booking chat opens straight away.'), 'ok');
+      try {
+        enter(await api('/me'));
+      } catch (e) {
+        authEl.hidden = false;      // 401 = not signed in, which is the normal path here
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+# Secrets — never commit
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Database (regenerated + reseeded on first run)
+clinic.db
+clinic.db-journal
+clinic.db-wal
+
+# Tooling / OS artifacts
+.playwright-mcp/
+*.log
+nohup.out
+generated_image.png
+.DS_Store
+
+# Runtime-uploaded clinic images (seeded logos are committed)
+web/assets/images/clinic-logos/
+
+# Runtime-uploaded user avatars (seeded staff-avatars are committed)
+web/assets/images/avatars/
+
+# Runtime-uploaded treatment images (seeded service-images are committed)
+web/assets/images/service-uploads/
+
+# eval run logs (local quality-tracking artifacts)
+evals/results/
+
+# Customer photos sent in chat (runtime uploads)
+web/assets/images/chat-uploads/
+
+# Office lock files (created while a document is open)
+~$*

@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="only light" />
+  <title>Chat — Blinks Bright</title>
+  <link rel="icon" type="image/png" href="/assets/images/logo_b.png?v=5" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/tokens.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); height: 100vh; color: var(--ink);
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+      background:
+        radial-gradient(800px 500px at 100% 0%, rgba(var(--clay-rgb),.14), transparent 60%),
+        radial-gradient(700px 460px at 0% 100%, rgba(var(--primary-rgb),.10), transparent 58%),
+        var(--canvas); }
+    .chat-app { width: 100%; max-width: 460px; height: min(92vh, 760px);
+      background: var(--surface); border-radius: var(--r-xl);
+      box-shadow: 0 30px 66px -26px rgba(var(--scrim-rgb),.50), 0 2px 10px rgba(var(--scrim-rgb),.07);
+      display: flex; flex-direction: column; overflow: hidden;
+      animation: app-in 440ms cubic-bezier(.22,.7,.28,1); }
+    @keyframes app-in { from { opacity:0; transform: translateY(16px) scale(.99); } to { opacity:1; transform:none; } }
+    .chat-head { background: linear-gradient(135deg, #3F46A6, var(--primary)); color: var(--on-primary);
+      padding: 18px 20px; display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 6px 18px -8px rgba(var(--primary-rgb),.7); position: relative; z-index: 1; }
+    .chat-head .logo { width: 40px; height: 40px; flex-shrink: 0; }
+    .chat-head .logo img { width: 100%; height: 100%; object-fit: cover; }
+    .chat-head h1 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+    .chat-head p { font-size: 12px; opacity: .82; display: flex; align-items: center; gap: 6px; }
+    .chat-head .live { width: 7px; height: 7px; border-radius: 50%; background: #36BFA6;
+      animation: live-pulse 2.2s infinite; }
+    .chat-head .refresh { appearance: none; border: none; cursor: pointer; flex-shrink: 0; margin-left: auto;
+      width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+      background: rgba(255,255,255,.18); color: var(--on-primary);
+      transition: background 150ms ease; }
+    .chat-head .refresh:hover { background: rgba(255,255,255,.32); }
+    @keyframes live-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(54, 191, 166,.6); }
+      70% { box-shadow: 0 0 0 7px rgba(54, 191, 166,0); }
+      100% { box-shadow: 0 0 0 0 rgba(54, 191, 166,0); } }
+    .chat-msgs { flex: 1; overflow-y: auto; padding: 18px; background: var(--surface-2); }
+    .row { display: flex; margin-bottom: 12px; animation: msg-in 280ms cubic-bezier(.22,.7,.28,1); }
+    @keyframes msg-in { from { opacity:0; transform: translateY(9px); } to { opacity:1; transform:none; } }
+    .row.me { justify-content: flex-end; }
+    .bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 14px;
+      line-height: 1.55; box-shadow: 0 1px 3px rgba(var(--shadow-rgb),.10); }
+    .bubble.them { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 5px; }
+    .bubble.me { background: linear-gradient(158deg, #3F46A6, var(--primary)); color: var(--on-primary);
+      border-bottom-right-radius: 5px; }
+    .bubble .sender-tag { font-size: 11px; font-weight: 700; color: var(--primary);
+      letter-spacing: .02em; margin-bottom: 2px; }
+    .typing { display: inline-flex; gap: 4px; padding: 13px 16px; }
+    .typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted);
+      animation: b 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay: .15s; }
+    .typing span:nth-child(3) { animation-delay: .3s; }
+    @keyframes b { 0%,60%,100% { opacity:.3 } 30% { opacity:1 } }
+    .chat-foot { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; gap: 8px;
+      background: var(--surface); }
+    .chat-foot input { flex: 1; padding: 11px 14px; border: 1px solid var(--border-2);
+      border-radius: var(--r-pill); font: inherit; font-size: 14px; outline: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease; }
+    .chat-foot input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--primary-rgb),.13); }
+    .chat-foot button { width: 42px; height: 42px; border-radius: 50%; border: none;
+      background: linear-gradient(160deg, #3F46A6, var(--primary)); color: #fff; cursor: pointer;
+      display: grid; place-items: center; flex-shrink: 0;
+      box-shadow: 0 5px 14px -3px rgba(var(--primary-rgb),.55);
+      transition: transform 120ms ease, box-shadow 160ms ease, opacity 160ms ease; }
+    .chat-foot button:hover:not(:disabled) { transform: scale(1.07); box-shadow: 0 7px 18px -3px rgba(var(--primary-rgb),.65); }
+    .chat-foot button:active:not(:disabled) { transform: scale(.95); }
+    .chat-foot button:disabled { opacity: .5; }
+    .chat-foot .attach { background: var(--surface); color: var(--primary);
+      border: 1px solid var(--border-2); box-shadow: none; }
+    .chat-foot .attach:hover:not(:disabled) { box-shadow: none; background: rgba(var(--primary-rgb),.08); }
+    .attach-preview { display: none; align-items: center; gap: 10px; padding: 8px 14px;
+      border-top: 1px solid var(--border); background: var(--surface); font-size: 12.5px; }
+    .attach-preview.on { display: flex; }
+    .attach-preview img { width: 44px; height: 44px; object-fit: cover; border-radius: 8px; }
+    .attach-preview .x { margin-left: auto; width: 28px; height: 28px; box-shadow: none;
+      background: transparent; color: var(--muted); font-size: 18px; }
+    .attach-err { display: none; padding: 6px 14px; font-size: 12.5px; color: #B23E46; background: var(--surface); }
+    .attach-err.on { display: block; }
+    /* shortcut chips: one swipeable row just above the composer — gone once the
+       customer has said anything */
+    .quick { display: flex; gap: 8px; padding: 4px 14px 10px; background: var(--surface-2);
+      overflow-x: auto; overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity; scroll-padding-inline: 14px;
+      scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .quick::-webkit-scrollbar { display: none; }
+    .quick button { flex: none; white-space: nowrap; scroll-snap-align: start;
+      border: 1px solid rgba(var(--primary-rgb),.10); background: rgba(var(--primary-rgb),.08);
+      color: var(--primary); border-radius: var(--r-pill); padding: 7px 13px; font: inherit;
+      font-size: 13px; cursor: pointer; transition: background 150ms ease; }
+    .quick button:hover { background: rgba(var(--primary-rgb),.15); }
+    /* a message that never reached the server: say so and offer a retry */
+    .send-fail { display: flex; justify-content: flex-end; align-items: center; gap: 8px;
+      margin: -6px 0 12px; font-size: 12.5px; color: #B23E46; }
+    .send-fail button { border: 1px solid #B23E46; background: transparent; color: #B23E46;
+      border-radius: var(--r-pill); padding: 3px 11px; font: inherit; font-size: 12.5px; cursor: pointer; }
+    .bubble img.photo { display: block; max-width: 220px; max-height: 260px; border-radius: 12px; margin-bottom: 6px; }
+    /* AI markdown (bold / italic / lists / tables) */
+    .md-body { line-height: 1.55; }
+    .md-body .md-p { margin: 0 0 .5em; }
+    .md-body .md-p:first-child, .md-body .md-h:first-child,
+    .md-body .md-list:first-child, .md-body .md-tablewrap:first-child { margin-top: 0; }
+    .md-body .md-p:last-child, .md-body .md-list:last-child,
+    .md-body .md-tablewrap:last-child, .md-body .md-h:last-child { margin-bottom: 0; }
+    .md-body strong { font-weight: 700; }
+    .md-body em { font-style: italic; }
+    .md-body del { opacity: .7; }
+    .md-body a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+    .md-body .md-list { margin: .25em 0 .55em; padding-left: 1.3em; }
+    .md-body .md-list li { margin: .12em 0; }
+    .md-body .md-list li::marker { color: var(--primary); }
+    .md-body .md-h { font-weight: 700; line-height: 1.3; margin: .55em 0 .3em; }
+    .md-body .md-h1 { font-size: 1.16em; }
+    .md-body .md-h2 { font-size: 1.08em; }
+    .md-body .md-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .86em; background: rgba(var(--shadow-rgb), .16); padding: .06em .36em; border-radius: 5px; }
+    .md-body .md-quote { margin: .35em 0; padding: .1em 0 .1em .7em;
+      border-left: 3px solid var(--border-2); color: var(--ink-2); }
+    .md-body .md-hr { border: 0; border-top: 1px solid var(--border-2); margin: .6em 0; }
+    .md-body .md-tablewrap { overflow-x: auto; margin: .4em 0 .5em; }
+    .md-body .md-table { border-collapse: collapse; width: 100%; font-size: .92em; }
+    .md-body .md-table th, .md-body .md-table td {
+      border: 1px solid var(--border-2); padding: 5px 9px; text-align: left; vertical-align: top; }
+    .md-body .md-table th { background: rgba(var(--shadow-rgb), .12); font-weight: 600; }
+    /* pay button (rendered inside an AI bubble when a payment link is created) */
+    .pay-card { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      margin-top: 10px; padding: 11px 14px; border-radius: 14px; text-decoration: none;
+      background: linear-gradient(158deg, #3F46A6, var(--primary)); color: #fff;
+      box-shadow: 0 6px 16px -6px rgba(var(--primary-rgb),.6); transition: transform .12s ease, box-shadow .16s ease; }
+    .pay-card:hover { transform: translateY(-1px); box-shadow: 0 9px 20px -6px rgba(var(--primary-rgb),.7); }
+    .pay-card.paid { background: #DCEFE5; color: #2C7457; box-shadow: none; cursor: default; }
+    .pay-card.paid:hover { transform: none; box-shadow: none; }
+    .pay-card .pay-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .pay-card .pay-label { font-size: 14px; font-weight: 600; }
+    .pay-card .pay-label b { font-weight: 700; }
+    .pay-card .pay-sub { font-size: 11.5px; opacity: .85; }
+    .pay-card .pay-cta { font-size: 13px; font-weight: 700; white-space: nowrap; }
+    /* Full opacity + bold, unlike .pay-sub above: opacity .85 on top of #fff was too
+       faint to read at 11.5px against the card's gradient — a countdown exists to be
+       noticed. .warn stays the same #fff (not a colour swap, which risks the same
+       fade-into-the-background problem against a different clinic's accent in the
+       gradient) and gets a translucent chip instead, safe on any background shade. */
+    .pay-card .pay-countdown { display: block; margin-top: 1px; font-size: 12.5px;
+      font-weight: 700; font-variant-numeric: tabular-nums; }
+    .pay-card .pay-countdown.warn { display: inline-block; padding: 1px 7px; border-radius: 6px;
+      background: rgba(255,255,255,.22); }
+    .pay-card.paid .pay-countdown { display: none; }
+    /* bank-transfer QR (no card link): the code on white so any scanner reads it */
+    .pay-card.pay-qr { flex-direction: column; align-items: stretch; cursor: default; }
+    .pay-card.pay-qr:hover { transform: none; }
+    .pay-qr-img { display: block; width: 100%; max-width: 220px; margin: 4px auto 2px;
+      background: #fff; padding: 8px; border-radius: 10px; }
+    .pay-qr-save { align-self: center; color: #fff; font-size: 12.5px; font-weight: 600;
+      text-decoration: underline; text-underline-offset: 2px; }
+    .pay-card.paid .pay-qr-img, .pay-card.paid .pay-qr-save { display: none; }
+  </style>
+</head>
+<body>
+  <div class="chat-app">
+    <div class="chat-head">
+      <div class="logo"><img src="/assets/images/logo_b.png?v=5" alt="R" /></div>
+      <div>
+        <h1 id="ck-name">Blinks Bright</h1>
+        <p><span class="live"></span> <span id="ck-sub">เราพร้อมดูแลคุณค่ะ</span></p>
+      </div>
+      <button type="button" class="refresh" id="ck-refresh">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.1A8.4 8.4 0 0 1 12 3" />
+          <path d="M18 2v6M15 5h6" /></svg>
+      </button>
+    </div>
+    <div class="chat-msgs" id="msgs"></div>
+    <div class="attach-err" id="attach-err" role="alert"></div>
+    <div class="attach-preview" id="attach-preview">
+      <img id="attach-thumb" alt="" /><span id="attach-name"></span>
+      <button type="button" class="x" id="attach-clear" aria-label="Remove">×</button>
+    </div>
+    <div class="chat-foot">
+      <input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden />
+      <button type="button" class="attach" id="attach" aria-label="Attach photo">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="9" cy="9" r="1.6" />
+          <path d="m21 15-4.5-4.5L6 21" /></svg>
+      </button>
+      <input id="input" placeholder="พิมพ์ข้อความ…" autocomplete="off" />
+      <button id="send" aria-label="Send">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 2 11 13M22 2l-7 20-4-9-9-4z" /></svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* Standalone widget i18n (no module imports here) — mirrors web/js/i18n.js.
+       The language is whatever the page framing the widget chose (the TH|EN toggle on
+       the home page / portal writes localStorage.lang); the widget has no toggle of its own. */
+    const LANG = (function () {
+      try { const s = (localStorage.getItem('lang') || '').toLowerCase(); return s === 'en' ? 'en' : 'th'; }
+      catch (e) { return 'th'; }
+    })();
+    document.documentElement.lang = LANG;
+    const TR = {
+      subtitle: { th: 'เราพร้อมดูแลคุณค่ะ', en: "We're here to help" },
+      placeholder: { th: 'พิมพ์ข้อความ…', en: 'Type a message…' },
+      newChat: { th: 'เริ่มแชตใหม่', en: 'Start a new chat' },
+      newChatConfirm: {
+        th: 'เริ่มแชตใหม่ใช่ไหมคะ? ข้อความในหน้าต่างนี้จะถูกล้าง รวมถึงลิงก์ชำระเงินที่ยังไม่ได้จ่าย',
+        en: 'Start a new chat? This window will be cleared, including any payment link you have not paid yet.',
+      },
+      payLabel: { th: 'ชำระเงิน', en: 'Pay' },
+      payReceived: { th: 'ชำระเงินเรียบร้อยแล้ว', en: 'Payment received' },
+      paidCta: { th: 'ชำระแล้ว', en: 'Paid' },
+      payMethod: { th: 'ชำระเงินออนไลน์', en: 'Online payment' },
+      payCta: { th: 'จ่ายเงิน', en: 'Pay now' },
+      qrMethod: { th: 'สแกนโอนผ่านแอปธนาคาร แล้วส่งสลิปในแชทนี้', en: 'Scan with your banking app, then send the slip here' },
+      qrSave: { th: 'บันทึกรูป QR', en: 'Save QR image' },
+      slipChecking: { th: 'ได้รับสลิปแล้ว แอดมินกำลังตรวจสอบ', en: 'Slip received; our admin is checking it' },
+      holdCountdown: { th: 'ระบบสำรองคิวนี้ให้อีก {mm}:{ss} นาที', en: 'Holding this slot for {mm}:{ss} more' },
+      holdExpired: { th: 'หมดเวลาถือคิวแล้ว', en: 'Hold has expired' },
+      attachErr: { th: 'ส่งรูปไม่สำเร็จ ลองใหม่อีกครั้งนะคะ (รองรับ PNG, JPG, WebP ไม่เกิน 4 MB)', en: 'Could not send the photo. Please try again (PNG, JPG or WebP, max 4 MB).' },
+      analyzing: { th: 'กำลังดูรูปภาพที่ส่งมา…', en: 'Looking at your photo…' },
+      photoMsg: { th: 'ส่งรูปภาพ', en: 'Photo' },
+      errorMsg: { th: 'ขออภัยค่ะ ระบบแชทขัดข้องชั่วคราว กรุณาลองใหม่อีกครั้ง หรือกดปุ่มเริ่มแชตใหม่ด้านบน', en: 'Sorry, the chat is temporarily unavailable. Please try again, or tap "Start a new chat" above.' },
+      sendFail: { th: 'ส่งไม่สำเร็จ', en: 'Not sent' },
+      sendExpired: { th: 'แชตนี้หมดอายุแล้ว กรุณากดปุ่มเริ่มแชตใหม่ด้านบน', en: 'This chat has expired. Please tap "Start a new chat" above.' },
+      retry: { th: 'ลองอีกครั้ง', en: 'Try again' },
+      slowReply: { th: 'ระบบตอบช้ากว่าปกติ ข้อความของคุณถึงคลินิกแล้วนะคะ หากยังไม่มีคำตอบ ลองพิมพ์ถามอีกครั้งได้เลยค่ะ', en: 'Replies are slower than usual. Your message has reached the clinic; if no answer appears, please ask again.' },
+      qPrices: { th: 'ดูทรีตเมนต์และราคา', en: 'Treatments & prices' },
+      qPricesMsg: { th: 'มีทรีตเมนต์อะไรบ้าง ราคาเท่าไหร่คะ', en: 'What treatments do you offer and how much are they?' },
+      qPromo: { th: 'โปรโมชันตอนนี้', en: 'Current promotions' },
+      qPromoMsg: { th: 'ตอนนี้มีโปรโมชันอะไรบ้างคะ', en: 'What promotions do you have right now?' },
+      qBranch: { th: 'สาขาและเวลาเปิด', en: 'Branches & hours' },
+      qBranchMsg: { th: 'มีสาขาไหนบ้าง เปิดกี่โมงคะ', en: 'Which branches do you have and what are the opening hours?' },
+      qBook: { th: 'จองคิว', en: 'Book a slot' },
+      qBookMsg: { th: 'อยากจองคิวค่ะ', en: 'I would like to book an appointment.' },
+      qPhoto: { th: '📷 ส่งรูป/สลิป', en: '📷 Send a photo' },
+      signupLabel: { th: 'สมัครสมาชิก / เข้าสู่ระบบ', en: 'Sign up / Sign in' },
+      signupSub: { th: 'จองคิวผ่านเว็บไซต์ได้เฉพาะสมาชิก', en: 'Online booking is for members' },
+      signupCta: { th: 'ไปเลย', en: 'Go' },
+      signupMsg: { th: 'การจองคิวผ่านเว็บไซต์เปิดให้เฉพาะสมาชิกค่ะ สมัครสมาชิกหรือเข้าสู่ระบบก่อน แล้วคุยกับผู้ช่วยต่อในหน้าบัญชีของคุณเพื่อจองคิวได้ทันทีค่ะ ส่วนคำถามเรื่องบริการ ราคา หรือสาขา ถามที่นี่ได้เลยนะคะ',
+                   en: 'Online booking is for members. Sign up or sign in first, then carry on chatting from your account to book straight away. Questions about treatments, prices or branches are welcome right here.' },
+    };
+    const tr = (k, vars) => {
+      let s = TR[k] ? (TR[k][LANG] || TR[k].th) : k;
+      if (vars) s = s.replace(/\{(\w+)\}/g, (m, v) => (vars[v] != null ? vars[v] : m));
+      return s;
+    };
+    document.getElementById('ck-sub').textContent = tr('subtitle');
+    /* "Start a new chat": drop this tab's conversation and open a fresh room.
+       Two cases, because the widget has two ways of knowing who it is talking to:
+       - a visitor: forget the stored token, and the reload falls through to
+         /api/channels/web/start, which opens a new conversation;
+       - a signed-in member (the portal handed us #token=...): the stored token is
+         overwritten from the hash on every load, so clearing it would just resume the
+         same thread. Ask the portal for a NEW conversation on their own record and
+         swap the hash to its token instead. If that call fails (signed out since),
+         fall back to the visitor path so the button never does nothing. */
+    (function () {
+      const b = document.getElementById('ck-refresh');
+      b.title = tr('newChat'); b.setAttribute('aria-label', tr('newChat'));
+      b.onclick = async () => {
+        if (!confirm(tr('newChatConfirm'))) return;
+        const key = 'chat_token:' + (location.pathname.split('/')[2] || '');
+        let hash = '';
+        if (/token=/.test(location.hash)) {
+          try {
+            const r = await fetch('/api/portal/chat', { method: 'POST', credentials: 'include',
+              headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ new: true }) });
+            if (r.ok) hash = '#token=' + encodeURIComponent((await r.json()).token);
+          } catch (e) { /* fall back to an anonymous room */ }
+        }
+        try { sessionStorage.removeItem(key); } catch (e) {}
+        // Rewrite the URL first, then reload: the old #token must not survive into the
+        // new page, and a change that only touches the hash would not reload by itself.
+        history.replaceState(null, '', location.pathname + location.search + hash);
+        location.reload();
+      };
+    })();
+
+    let token = null;
+    // false for an anonymous visitor: booking is members-only (tools.py::booking_requires_signup),
+    // so the "book" shortcut sends them to sign up instead of to the assistant
+    let member = false;
+    const seen = new Set();   // rendered message ids — dedupes WS delivery vs backfill
+    const msgs = document.getElementById('msgs');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('send');
+    input.placeholder = tr('placeholder');
+
+    function esc(s) {
+      return String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    }
+    // Minimal, XSS-safe markdown for AI replies (bold/italic/lists/tables) —
+    // mirrors renderMarkdown() in web/js/ui.js for the standalone widget.
+    function mdEsc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function mdInline(s) {
+      let t = mdEsc(s);
+      t = t.replace(/`([^`\n]+)`/g, (m, c) => '<code class="md-code">' + c + '</code>');
+      t = t.replace(/\*\*([^\n]+?)\*\*/g, '<strong>$1</strong>');
+      t = t.replace(/__([^\n_]+?)__/g, '<strong>$1</strong>');
+      t = t.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>');
+      t = t.replace(/(^|[^\w])_([^_\n]+?)_(?=[^\w]|$)/g, '$1<em>$2</em>');
+      t = t.replace(/~~([^~\n]+?)~~/g, '<del>$1</del>');
+      t = t.replace(/\[([^\]\n]+)\]\(([^)\s]+)\)/g, (m, txt, url) =>
+        '<a href="' + (/^(https?:|mailto:|tel:)/i.test(url) ? url.replace(/"/g, '%22') : '#')
+        + '" target="_blank" rel="noopener noreferrer">' + txt + '</a>');
+      return t;
+    }
+    function mdRow(line) { return line.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|').map((c) => c.trim()); }
+    function mdSep(s) { return s.includes('-') && /^\s*\|?(\s*:?-{1,}:?\s*\|)+\s*:?-{1,}:?\s*\|?\s*$/.test(s); }
+    function md(src) {
+      const lines = String(src == null ? '' : src).replace(/\r\n?/g, '\n').split('\n');
+      const n = lines.length, out = [];
+      const special = (k) => /^\s*([-*+]\s+|\d+\.\s+|#{1,6}\s+|>\s?)/.test(lines[k])
+        || /^\s*([-*_])\1{2,}\s*$/.test(lines[k])
+        || (lines[k].includes('|') && k + 1 < n && mdSep(lines[k + 1]));
+      let i = 0;
+      while (i < n) {
+        const line = lines[i];
+        if (/^\s*$/.test(line)) { i++; continue; }
+        if (line.includes('|') && i + 1 < n && mdSep(lines[i + 1])) {
+          const head = mdRow(line); i += 2; const body = [];
+          while (i < n && lines[i].includes('|') && !/^\s*$/.test(lines[i])) { body.push(mdRow(lines[i])); i++; }
+          out.push('<div class="md-tablewrap"><table class="md-table"><thead><tr>'
+            + head.map((c) => '<th>' + mdInline(c) + '</th>').join('') + '</tr></thead><tbody>'
+            + body.map((r) => '<tr>' + head.map((_c, ci) => '<td>' + mdInline(r[ci] || '') + '</td>').join('') + '</tr>').join('')
+            + '</tbody></table></div>');
+          continue;
+        }
+        if (/^\s*[-*+]\s+/.test(line)) {
+          const items = [];
+          while (i < n && /^\s*[-*+]\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*[-*+]\s+/, '')); i++; }
+          out.push('<ul class="md-list">' + items.map((it) => '<li>' + mdInline(it) + '</li>').join('') + '</ul>');
+          continue;
+        }
+        if (/^\s*\d+\.\s+/.test(line)) {
+          const items = [];
+          while (i < n && /^\s*\d+\.\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*\d+\.\s+/, '')); i++; }
+          out.push('<ol class="md-list">' + items.map((it) => '<li>' + mdInline(it) + '</li>').join('') + '</ol>');
+          continue;
+        }
+        const h = line.match(/^\s*(#{1,6})\s+(.*)$/);
+        if (h) { out.push('<div class="md-h md-h' + h[1].length + '">' + mdInline(h[2]) + '</div>'); i++; continue; }
+        if (/^\s*>\s?/.test(line)) {
+          const q = [];
+          while (i < n && /^\s*>\s?/.test(lines[i])) { q.push(lines[i].replace(/^\s*>\s?/, '')); i++; }
+          out.push('<blockquote class="md-quote">' + q.map(mdInline).join('<br>') + '</blockquote>');
+          continue;
+        }
+        if (/^\s*([-*_])\1{2,}\s*$/.test(line)) { out.push('<hr class="md-hr">'); i++; continue; }
+        const para = [];
+        while (i < n && !/^\s*$/.test(lines[i]) && !special(i)) { para.push(lines[i]); i++; }
+        out.push('<p class="md-p">' + para.map(mdInline).join('<br>') + '</p>');
+      }
+      return '<div class="md-body">' + out.join('') + '</div>';
+    }
+    // Pay button + URL stripping — mirrors paymentCard()/stripPayUrls() in web/js/ui.js.
+    function payBtn(p) {
+      if (!p || !p.url || !(/^https?:\/\//i.test(p.url) || (p.kind === 'qr' && p.url.startsWith('/')))) return '';
+      const amt = p.amount ? '฿' + Number(p.amount).toLocaleString() : '';
+      const label = esc(p.label || tr('payLabel'));
+      const pid = esc(String(p.payment_id || ''));
+      if (p.paid) {
+        return '<div class="pay-card paid" data-payment="' + pid + '">'
+          + '<span class="pay-info"><span class="pay-label">' + label + (amt ? ' <b>' + amt + '</b>' : '') + '</span>'
+          + '<span class="pay-sub">' + tr('payReceived') + '</span></span>'
+          + '<span class="pay-cta">' + tr('paidCta') + ' ✓</span></div>';
+      }
+      // Filled in by tickPayCountdowns() on the next 1s tick — ships empty so there's no
+      // flash of a stale/wrong remaining time before JS takes over.
+      const countdown = p.hold_expires_at
+        ? '<span class="pay-countdown" data-hold-until="' + esc(p.hold_expires_at) + '"></span>' : '';
+      if (countdown) ensurePayCountdownTicking();
+      if (p.kind === 'qr') {
+        // no card link: show the transfer QR itself; the slip comes back via the photo button
+        return '<div class="pay-card pay-qr" data-payment="' + pid + '">'
+          + '<span class="pay-info"><span class="pay-label">' + label + (amt ? ' <b>' + amt + '</b>' : '') + '</span>'
+          + '<span class="pay-sub">' + tr('qrMethod') + '</span>' + countdown + '</span>'
+          + '<img class="pay-qr-img" src="' + esc(p.url) + '" alt="QR" />'
+          + '<a class="pay-qr-save" href="' + esc(p.url) + '" download>' + tr('qrSave') + '</a></div>';
+      }
+      return '<a class="pay-card" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer" data-payment="' + pid + '">'
+        + '<span class="pay-info"><span class="pay-label">' + label + (amt ? ' <b>' + amt + '</b>' : '') + '</span>'
+        + '<span class="pay-sub">' + tr('payMethod') + '</span>' + countdown + '</span>'
+        + '<span class="pay-cta">' + tr('payCta') + ' →</span></a>';
+    }
+    // Opens in the TOP window: the widget is usually framed by the home page, and the
+    // portal must not end up nested inside a 380px chat dock.
+    function signupBtn() {
+      const slug = location.pathname.split('/')[2] || '';
+      const href = '/portal?tab=register&next=book' + (slug ? '&clinic=' + encodeURIComponent(slug) : '');
+      return '<a class="pay-card" href="' + esc(href) + '" target="_top">'
+        + '<span class="pay-info"><span class="pay-label">' + tr('signupLabel') + '</span>'
+        + '<span class="pay-sub">' + tr('signupSub') + '</span></span>'
+        + '<span class="pay-cta">' + tr('signupCta') + ' →</span></a>';
+    }
+    function markPaidWidget(pid) {
+      document.querySelectorAll('.pay-card[data-payment="' + pid + '"]').forEach((el) => {
+        if (el.classList.contains('paid')) return;
+        el.classList.add('paid'); el.removeAttribute('href'); el.style.pointerEvents = 'none';
+        const sub = el.querySelector('.pay-sub'); if (sub) sub.textContent = tr('payReceived');
+        const cta = el.querySelector('.pay-cta'); if (cta) cta.textContent = tr('paidCta') + ' ✓';
+        const cd = el.querySelector('.pay-countdown'); if (cd) { cd.textContent = ''; cd.classList.remove('warn'); }
+      });
+    }
+    // One shared 1s interval for every unpaid pay-card's countdown — started lazily by
+    // the first payBtn() that needs one, mirrors ensurePayCountdownTicking() in ui.js.
+    let payCountdownTimer = null;
+    function tickPayCountdowns() {
+      const now = Date.now();
+      document.querySelectorAll('.pay-countdown[data-hold-until]').forEach((el) => {
+        if (el.closest('.pay-card.paid')) { el.textContent = ''; return; }
+        const deadline = new Date(el.dataset.holdUntil).getTime();
+        if (isNaN(deadline)) { el.textContent = ''; return; }
+        const ms = deadline - now;
+        if (ms <= 0) { el.textContent = tr('holdExpired'); el.classList.add('warn'); return; }
+        const totalSec = Math.floor(ms / 1000);
+        const mm = String(Math.floor(totalSec / 60)).padStart(2, '0');
+        const ss = String(totalSec % 60).padStart(2, '0');
+        el.textContent = tr('holdCountdown', { mm, ss });
+        el.classList.toggle('warn', ms <= 120000);
+      });
+    }
+    // A slip waiting for staff pauses the hold server-side (services/slips.py); the card
+    // the customer is looking at still carries the old deadline, so it must stop counting
+    // down to an expiry that is no longer coming. A rejected slip restarts it.
+    function applySlip(sl) {
+      if (!sl || sl.payment_id == null) return;
+      document.querySelectorAll('.pay-card[data-payment="' + String(sl.payment_id) + '"] .pay-countdown')
+        .forEach((el) => {
+          el.classList.remove('warn');
+          if (sl.state === 'received') {
+            el.removeAttribute('data-hold-until');
+            el.textContent = tr('slipChecking');
+          } else if (sl.state === 'rejected' && sl.hold_expires_at) {
+            el.dataset.holdUntil = sl.hold_expires_at;
+            ensurePayCountdownTicking(); tickPayCountdowns();
+          }
+        });
+    }
+    function ensurePayCountdownTicking() {
+      if (payCountdownTimer) return;
+      tickPayCountdowns();
+      payCountdownTimer = setInterval(tickPayCountdowns, 1000);
+    }
+    function addNotice(text) {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = '<div class="bubble them">' + esc(text) + '</div>';
+      msgs.appendChild(row); msgs.scrollTop = msgs.scrollHeight;
+    }
+    function stripPay(t) {
+      return String(t == null ? '' : t).replace(/https?:\/\/checkout\.stripe\.com\/\S+/gi, '')
+        .replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    }
+    function addMsg(m) {
+      if (!m || m.sender === 'system') return;
+      if (m.id != null) {
+        if (seen.has(m.id)) return;
+        seen.add(m.id);
+      }
+      const me = m.sender === 'customer';
+      const row = document.createElement('div');
+      row.className = 'row ' + (me ? 'me' : '');
+      const tag = (m.sender === 'admin' && m.sender_name)
+        ? '<div class="sender-tag">' + esc(m.sender_name) + '</div>' : '';
+      const img = m.image && /^\/assets\/images\/chat-uploads\//.test(m.image)
+        ? '<img class="photo" src="' + esc(m.image) + '" alt="' + esc(tr('photoMsg')) + '" />' : '';
+      const body = (m.image && m.text === '📷') ? '' : esc(m.text).replace(/\n/g, '<br>');
+      const inner = me
+        ? img + body
+        : tag + md(stripPay(m.text)) + (m.payment ? payBtn(m.payment) : '')
+          + (m.signup && !member ? signupBtn() : '');
+      row.innerHTML = '<div class="bubble ' + (me ? 'me' : 'them') + '">' + inner + '</div>';
+      msgs.appendChild(row);
+      msgs.scrollTop = msgs.scrollHeight;
+      if (me) clearQuick();
+      if (m.slip) applySlip(m.slip);
+      return row;
+    }
+    // Shortcut chips under the greeting, shown only while the customer has not said
+    // anything yet — a first-time visitor sees what to ask without having to guess.
+    const QUICK = [['qPrices', 'qPricesMsg'], ['qPromo', 'qPromoMsg'],
+                   ['qBranch', 'qBranchMsg'], ['qBook', 'qBookMsg'], ['qPhoto', null]];
+    function clearQuick() { const q = document.getElementById('quick'); if (q) q.remove(); }
+    function showQuick(list) {
+      if ((list || []).some((m) => m.sender === 'customer')) return;
+      clearQuick();
+      const box = document.createElement('div');
+      box.className = 'quick'; box.id = 'quick';
+      QUICK.forEach(([label, msg]) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = tr(label);
+        b.onclick = () => {
+          if (!msg) { fileEl.click(); return; }
+          if (msg === 'qBookMsg' && !member) {
+            addMsg({ sender: 'ai', text: tr('signupMsg'), signup: true });
+            return;
+          }
+          input.value = tr(msg); send();
+        };
+        box.appendChild(b);
+      });
+      document.querySelector('.chat-foot').before(box);
+      // a mouse wheel scrolls vertically; turn it sideways so desktop users can scroll the row
+      box.addEventListener('wheel', (e) => {
+        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { box.scrollLeft += e.deltaY; e.preventDefault(); }
+      }, { passive: false });
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+    function showTyping() {
+      if (document.getElementById('typing')) return;
+      const row = document.createElement('div');
+      row.className = 'row'; row.id = 'typing';
+      row.innerHTML = '<div class="bubble them"><div class="typing"><span></span><span></span><span></span></div></div>';
+      msgs.appendChild(row);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+    function clearTyping() {
+      const t = document.getElementById('typing');
+      if (t) t.remove();
+    }
+    // Pull the persisted history and render anything not shown yet. The WS starts at
+    // the CURRENT event head, so a message published while the socket was down (phone
+    // locked, network blip mid-reply) would otherwise be lost forever.
+    async function syncMessages(initial) {
+      if (!token) return false;
+      try {
+        const r = await fetch('/api/channels/web/messages?token=' + encodeURIComponent(token));
+        if (!r.ok) return false;
+        const d = await r.json();
+        (d.messages || []).forEach((m) => {
+          // own messages are already echoed locally (without ids) while chatting —
+          // only a fresh page restore renders the customer side from the server
+          if (!initial && m.sender === 'customer') return;
+          addMsg(m);
+        });
+        return true;
+      } catch (e) { return false; }
+    }
+    function connectWS() {
+      const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+      const ws = new WebSocket(proto + '://' + location.host + '/api/chat-stream/' + token);
+      ws.onopen = () => {
+        // a half-streamed reply from before the drop must not sit frozen next to
+        // the backfilled full message — drop the stale partial bubble first
+        const sb = document.getElementById('stream-bubble');
+        if (sb) { const row = sb.closest('.row'); (row || sb).remove(); }
+        syncMessages(false);
+      };
+      ws.onmessage = (e) => {
+        let d; try { d = JSON.parse(e.data); } catch (x) { return; }
+        if (d.type === 'stream') {
+          clearTyping();
+          let sb = document.getElementById('stream-bubble');
+          if (!sb) {
+            const row = document.createElement('div');
+            row.className = 'row';
+            row.innerHTML = '<div class="bubble them" id="stream-bubble"></div>';
+            msgs.appendChild(row);
+            sb = document.getElementById('stream-bubble');
+          }
+          sb.innerHTML = md(d.text);
+          msgs.scrollTop = msgs.scrollHeight;
+        } else if (d.type === 'message') {
+          clearTyping();
+          const m = d.message || {};
+          if (m.sender === 'customer') {
+            if (m.id != null) seen.add(m.id);   // already echoed locally when sent
+          } else if (m.id == null || !seen.has(m.id)) {
+            const sb = document.getElementById('stream-bubble');
+            if (sb) {
+              if (m.id != null) seen.add(m.id);
+              // same tail addMsg renders — a streamed reply finishes here instead
+              sb.innerHTML = md(stripPay(m.text)) + (m.payment ? payBtn(m.payment) : '')
+                + (m.signup && !member ? signupBtn() : '');
+              sb.removeAttribute('id');
+              msgs.scrollTop = msgs.scrollHeight;   // the card grows the bubble past the fold
+            } else {
+              addMsg(m);
+            }
+          }
+        } else if (d.type === 'stream_cancel') {
+          // a teammate took over while the reply was being written — the reply was
+          // withheld server-side, so the half-streamed bubble must go too
+          clearTyping();
+          const sb = document.getElementById('stream-bubble');
+          if (sb) { const row = sb.closest('.row'); (row || sb).remove(); }
+        } else if (d.type === 'typing') {
+          showTyping();
+        } else if (d.type === 'payment' && d.status === 'paid') {
+          // settle the pay-card; the booking confirmation itself arrives as a normal
+          // message (inbox.notify_payment_paid), so no separate notice here
+          markPaidWidget(String(d.payment_id || ''));
+        }
+      };
+      ws.onclose = () => setTimeout(connectWS, 2500);
+    }
+    function applyClinic(c) {
+      if (!c || !c.name) return;
+      document.getElementById('ck-name').textContent = c.name;
+      document.title = 'Chat — ' + c.name;
+      if (c.logo) {
+        const lg = document.querySelector('.chat-head .logo img');
+        if (lg) { lg.src = c.logo; lg.alt = c.name; }
+      }
+    }
+    async function start() {
+      try {
+        const slug = location.pathname.split('/')[2] || '';
+        const key = 'chat_token:' + slug;   // per-clinic, so tokens never cross tenants
+        // The customer portal frames this widget and passes the token for the
+        // SIGNED-IN customer's own conversation (#token=...), so a member continues
+        // their existing thread instead of opening an anonymous one the clinic
+        // cannot tie to their record. It wins over whatever this tab had stored,
+        // and is read from the hash (never the query) so it stays out of the
+        // Referer header and the server's access log.
+        const handed = (location.hash.match(/token=([^&]+)/) || [])[1];
+        if (handed) {
+          try { sessionStorage.setItem(key, decodeURIComponent(handed)); } catch (e) {}
+        }
+        // Resume the existing session if this tab has one (the TH|EN toggle reloads
+        // the page — without this, every reload wiped the thread and minted a
+        // duplicate "Web Visitor" lead in the clinic's CRM).
+        let stored = null;
+        try { stored = sessionStorage.getItem(key); } catch (e) {}
+        if (stored) {
+          try {
+            const r0 = await fetch('/api/channels/web/messages?token=' + encodeURIComponent(stored));
+            const d0 = r0.ok ? await r0.json() : null;
+            // A member's thread is only ever resumed from the token the page hands us
+            // (#token=...), which it gets from a live portal session. One left in this
+            // tab's storage after signing out would otherwise let a signed-out visitor
+            // on the home page carry on — and book — in the member's chat.
+            if (d0 && (!d0.member || handed)) {
+              token = stored;
+              member = !!d0.member;
+              applyClinic(d0.clinic);
+              (d0.messages || []).forEach(addMsg);
+              showQuick(d0.messages);
+              connectWS();
+              return;
+            }
+          } catch (e) { /* fall through to a fresh session */ }
+          try { sessionStorage.removeItem(key); } catch (e) {}
+        }
+        const r = await fetch('/api/channels/web/start', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clinic: slug, lang: LANG }),
+        });
+        if (!r.ok) throw new Error('start ' + r.status);
+        const d = await r.json();
+        token = d.token;
+        member = !!d.member;
+        try { sessionStorage.setItem(key, token); } catch (e) {}
+        applyClinic(d.clinic);
+        (d.messages || []).forEach(addMsg);
+        showQuick(d.messages);
+        connectWS();
+      } catch (e) {
+        addMsg({ sender: 'ai', text: tr('errorMsg') });
+      }
+    }
+    const fileEl = document.getElementById('file');
+    const attachBtn = document.getElementById('attach');
+    const errEl = document.getElementById('attach-err');
+    const prevEl = document.getElementById('attach-preview');
+    let pendingFile = null;
+    function setErr(msg) { errEl.textContent = msg || ''; errEl.classList.toggle('on', !!msg); }
+    function clearAttach() {
+      pendingFile = null; fileEl.value = ''; prevEl.classList.remove('on');
+      const th = document.getElementById('attach-thumb');
+      if (th.src) URL.revokeObjectURL(th.src);
+      th.removeAttribute('src');
+    }
+    attachBtn.onclick = () => fileEl.click();
+    document.getElementById('attach-clear').onclick = () => { clearAttach(); setErr(''); };
+    fileEl.onchange = () => {
+      const f = fileEl.files && fileEl.files[0];
+      setErr('');
+      if (!f) return;
+      // same limits the server enforces, so the customer hears about it before uploading
+      if (!/^image\/(png|jpeg|webp)$/.test(f.type) || f.size > 4 * 1024 * 1024) {
+        clearAttach(); setErr(tr('attachErr')); return;
+      }
+      pendingFile = f;
+      document.getElementById('attach-thumb').src = URL.createObjectURL(f);
+      document.getElementById('attach-name').textContent = f.name;
+      prevEl.classList.add('on');
+    };
+    // "Looking at your photo…" sits inside the typing bubble until the first token streams in.
+    function markAnalyzing() {
+      const t = document.getElementById('typing');
+      if (!t || t.querySelector('.analyzing')) return;
+      const s = document.createElement('div');
+      s.className = 'analyzing';
+      s.style.cssText = 'font-size:12px;color:var(--muted);padding:6px 14px 0';
+      s.textContent = tr('analyzing');
+      t.querySelector('.bubble').prepend(s);
+    }
+    async function sendPhoto(text) {
+      const f = pendingFile;
+      const fd = new FormData();
+      fd.append('token', token); fd.append('text', text); fd.append('file', f);
+      const row = document.createElement('div');
+      row.className = 'row me';
+      row.innerHTML = '<div class="bubble me"><img class="photo" src="' + URL.createObjectURL(f) + '" alt="" />'
+        + esc(text).replace(/\n/g, '<br>') + '</div>';
+      clearAttach(); input.value = '';
+      sendBtn.disabled = attachBtn.disabled = true;
+      msgs.appendChild(row); msgs.scrollTop = msgs.scrollHeight;
+      showTyping(); markAnalyzing();
+      try {
+        const r = await fetch('/api/channels/web/image', { method: 'POST', body: fd });
+        if (!r.ok) throw new Error('upload ' + r.status);
+        clearQuick(); watchReply();
+      } catch (e) {
+        clearTyping(); row.remove(); setErr(tr('attachErr'));
+      } finally { sendBtn.disabled = attachBtn.disabled = false; }
+    }
+    // If the reply never shows up (the background job died), don't leave the dots
+    // spinning forever: re-sync once, and if there is still nothing, say so.
+    let replyWatch = null;
+    function watchReply() {
+      clearTimeout(replyWatch);
+      replyWatch = setTimeout(async () => {
+        if (!document.getElementById('typing')) return;
+        await syncMessages(false);
+        if (document.getElementById('typing')) { clearTyping(); addNotice(tr('slowReply')); }
+      }, 60000);
+    }
+    // POST one text message. The customer's bubble is already on screen; on failure it
+    // gets a "Not sent · Try again" line instead of silently waiting for a reply that
+    // can never come (the old code swallowed the error).
+    async function postText(text, row) {
+      showTyping();
+      try {
+        const r = await fetch('/api/channels/web/message', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, text }),
+        });
+        if (!r.ok) throw Object.assign(new Error('send ' + r.status), { status: r.status });
+        watchReply();
+      } catch (e) {
+        clearTyping();
+        const fail = document.createElement('div');
+        fail.className = 'send-fail';
+        if (e.status === 401) {
+          fail.textContent = tr('sendExpired');
+        } else {
+          fail.innerHTML = '<span>' + esc(tr('sendFail')) + '</span><button type="button">' + esc(tr('retry')) + '</button>';
+          fail.querySelector('button').onclick = () => { fail.remove(); postText(text, row); };
+        }
+        row.after(fail);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+    }
+    async function send() {
+      const text = input.value.trim();
+      if (pendingFile && token) return sendPhoto(text);
+      if (!text || !token) return;
+      setErr('');
+      input.value = '';
+      const row = addMsg({ sender: 'customer', text });
+      postText(text, row);
+    }
+    sendBtn.onclick = send;
+    input.onkeydown = (e) => { if (e.key === 'Enter') send(); };
+    start();
+  </script>
+</body>
+</html>

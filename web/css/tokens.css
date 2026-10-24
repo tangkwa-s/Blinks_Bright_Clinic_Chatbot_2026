@@ -1,0 +1,117 @@
+/* ============================================================
+   Blinks Bright — Design Tokens
+   "Glass marble" (ลูกแก้ว) palette: clear pearly glass with the swirls you
+   see inside a marble — cobalt/periwinkle at the core, aqua and violet
+   around it, a rose glint on the rim. Cool, luminous, translucent.
+
+   Every surface, border, shadow and glow below is cool-tinted on purpose:
+   a single warm value (the old cream/olive scheme) reads as a smudge
+   against glass. The *-rgb triplets exist so the translucent layers in
+   polish.css (glows, frosted bars, scrims) can share these exact hues
+   instead of hardcoding a second, drifting copy of the palette.
+   ============================================================ */
+:root {
+  /* Opt out of browser "force dark mode" (e.g. Brave's dark mode, Chromium
+     auto-dark) — this is a deliberately light, glass-and-light design with no
+     dark theme, so let it always render as authored instead of auto-inverted. */
+  color-scheme: only light;
+
+  /* --- surfaces & neutrals (clear glass, lit from behind) --- */
+  --canvas:        #EEF1FA;
+  --canvas-2:      #E6EBF7;
+  --surface:       #FFFFFF;
+  --surface-2:     #F7F9FE;
+  --surface-3:     #EEF3FC;
+  --sand:          #E1E8F6;   /* frosted edge (name kept: used by skeletons) */
+
+  /* --- borders --- */
+  --border:        #E0E7F4;
+  --border-2:      #C8D5EA;
+
+  /* --- brand: the swirls --- */
+  --primary:       #4E57C4;   /* cobalt-periwinkle core — primary actions, active nav */
+  --primary-hover: #3E46A8;
+  --primary-soft:  #E7E9FB;   /* pale periwinkle wash */
+  --clay:          #17788E;   /* aqua swirl (name kept: ~40 call sites) */
+  --clay-hover:    #115F71;
+  --clay-soft:     #DCEEF4;
+  --tan:           #86B9CC;   /* pale aqua highlight */
+  --brown:         #3F4A72;   /* deep indigo-slate */
+
+  /* --- text --- */
+  --ink:           #1C2238;
+  --ink-2:         #4A5368;
+  --muted:         #697591;
+  --on-primary:    #F4F7FF;
+
+  /* --- status (conversation pipeline) ---
+     Each foreground is tuned to clear WCAG AA (4.5:1) against its own -bg chip:
+     these render at --fs-xs (11px), where the old palette sat as low as 2.6:1. */
+  --st-new:        #4E6B94;  --st-new-bg:        #E6EDF7;
+  --st-interested: #886226;  --st-interested-bg: #F5EAD6;
+  --st-booked:     #2A737A;  --st-booked-bg:     #DDEFF0;
+  --st-paid:       #2C7457;  --st-paid-bg:       #DCEFE5;
+  --st-followup:   #7153BB;  --st-followup-bg:   #EBE6F9;
+  --st-lost:       #5E6A82;  --st-lost-bg:       #E9EDF4;
+
+  /* --- lead temperature --- */
+  --hot:  #B53953;  --hot-bg:  #FAE2E7;
+  --warm: #876422;  --warm-bg: #F6ECD5;
+  --cold: #366DA1;  --cold-bg: #E3EEF9;
+
+  /* --- semantic --- */
+  --success: #2C7457;  --success-bg: #DCEFE5;
+  --warning: #886226;  --warning-bg: #F5EAD6;
+  --danger:  #B23E46;  --danger-bg:  #F9E1E3;
+  --info:    #366DA1;  --info-bg:    #E3EEF9;
+
+  /* --- charts (the marble's full swirl, coordinated with the glass shell) --- */
+  --chart-1: #5B6BE0;   /* periwinkle */
+  --chart-2: #2BA8C4;   /* aqua — brand cool */
+  --chart-3: #8E6FE0;   /* violet */
+  --chart-4: #36BFA6;   /* mint teal */
+  --chart-5: #E0719E;   /* rose glint */
+  --chart-6: #4E8BC4;   /* sky */
+  --chart-7: #E0A341;   /* amber glass */
+  --chart-8: #6ECBE8;   /* pale cyan */
+
+  /* --- glass: translucency + coloured light ---
+     Used by the frosted bars, card glows and scrims in polish.css. */
+  --shadow-rgb:  42, 52, 90;    /* cool shadow base */
+  --scrim-rgb:   28, 36, 72;    /* deep scrim / pressed states */
+  --primary-rgb: 78, 87, 196;
+  --clay-rgb:    23, 120, 142;
+  --violet-rgb:  142, 111, 224;
+  --rose-rgb:    224, 113, 158;
+  --glass:       rgba(255, 255, 255, 0.62);
+  --glass-line:  rgba(255, 255, 255, 0.70);
+
+  /* --- typography --- */
+  --font: 'Inter', 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --fs-xs:   11px;
+  --fs-sm:   12px;
+  --fs-base: 13px;
+  --fs-md:   14px;
+  --fs-lg:   16px;
+  --fs-xl:   20px;
+  --fs-2xl:  26px;
+  --fs-3xl:  32px;
+
+  /* --- spacing (4pt scale) --- */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px;  --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px;  --sp-10: 40px; --sp-12: 48px;
+
+  /* --- radius --- */
+  --r-sm: 6px;  --r-md: 10px;  --r-lg: 14px;  --r-xl: 20px;  --r-pill: 999px;
+
+  /* --- shadow (cool-tinted, glass-like) --- */
+  --sh-xs: 0 1px 2px rgba(var(--shadow-rgb), 0.07);
+  --sh-sm: 0 1px 3px rgba(var(--shadow-rgb), 0.09), 0 1px 2px rgba(var(--shadow-rgb), 0.05);
+  --sh-md: 0 4px 16px rgba(var(--shadow-rgb), 0.11);
+  --sh-lg: 0 14px 36px rgba(var(--scrim-rgb), 0.17);
+
+  /* --- layout --- */
+  --sidebar-w: 234px;
+  --topbar-h:  70px;
+  --transition: 150ms ease;
+}
